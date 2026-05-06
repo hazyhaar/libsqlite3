@@ -1,4 +1,4 @@
-// Code generated for linux/loong64 by 'generator -DNDEBUG -I /tmp/libsqlite3/sqlite-src-3530100 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_linux_loong64.go /tmp/libsqlite3/sqlite-src-3530100/mptest/mptest.c -lsqlite3', DO NOT EDIT.
+// Code generated for linux/loong64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -I /tmp/libsqlite3/sqlite-src-3530100 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_linux_loong64.go /tmp/libsqlite3/sqlite-src-3530100/mptest/mptest.c -lsqlite3', DO NOT EDIT.
 
 //go:build linux && loong64
 
