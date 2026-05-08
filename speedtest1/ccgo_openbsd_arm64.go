@@ -1,4 +1,4 @@
-// Code generated for openbsd/arm64 by 'generator -DNDEBUG -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_openbsd_arm64.go -I /tmp/libsqlite3/sqlite-src-3530000 /tmp/libsqlite3/sqlite-src-3530000/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for openbsd/arm64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_openbsd_arm64.go -I /tmp/libsqlite3/sqlite-src-3530100 /tmp/libsqlite3/sqlite-src-3530100/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build openbsd && arm64
 
