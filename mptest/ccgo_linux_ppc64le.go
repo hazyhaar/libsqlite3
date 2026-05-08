@@ -1,4 +1,4 @@
-// Code generated for linux/ppc64le by 'generator -DNDEBUG -I /tmp/libsqlite3/sqlite-src-3530100 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_linux_ppc64le.go /tmp/libsqlite3/sqlite-src-3530100/mptest/mptest.c -lsqlite3', DO NOT EDIT.
+// Code generated for linux/ppc64le by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -I /tmp/libsqlite3/sqlite-src-3530100 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_linux_ppc64le.go /tmp/libsqlite3/sqlite-src-3530100/mptest/mptest.c -lsqlite3', DO NOT EDIT.
 
 //go:build linux && ppc64le
 
