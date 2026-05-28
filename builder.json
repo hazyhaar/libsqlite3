@@ -1,12 +1,12 @@
 {
-	"autogen": "darwin/(amd64|arm64)|freebsd/(amd64|arm64)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|openbsd/(amd64|arm64)",
-	"autotag": "darwin/(amd64|arm64)|freebsd/(amd64|arm64)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|windows/(amd64|arm64|386)",
+	"autogen": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|openbsd/(amd64|arm64)",
+	"autotag": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|windows/(amd64|arm64|386)",
 	"autoupdate": "<none>",
 	"download": [
-		{"re": "darwin/(amd64|arm64)|freebsd/(amd64|arm64)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|openbsd/(amd64|arm64)", "files": [
+		{"re": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|openbsd/(amd64|arm64)", "files": [
 			"https://www.sqlite.org/2026/sqlite-amalgamation-3530100.zip",
 			"https://www.sqlite.org/2026/sqlite-src-3530100.zip"
 		]}
 	],
-	"test": "darwin/(amd64|arm64)|freebsd/(amd64|arm64)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|windows/(amd64|arm64|386)"
+	"test": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|windows/(amd64|arm64|386)"
 }

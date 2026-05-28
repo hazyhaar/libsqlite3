@@ -15,21 +15,23 @@
 //
 //	OS      Arch    SQLite version
 //	------------------------------
-//	darwin  amd64   3.53.1
-//	darwin  arm64   3.53.1
-//	freebsd amd64   3.53.1
-//	freebsd arm64   3.53.1
-//	linux   386     3.53.1
-//	linux   amd64   3.53.1
-//	linux   arm     3.53.1
-//	linux   arm64   3.53.1
-//	linux   loong64 3.53.1
-//	linux   ppc64le 3.53.1
-//	linux   riscv64 3.53.1
-//	linux   s390x   3.53.1
-//	windows 386     3.53.1
-//	windows amd64   3.53.1
-//	windows arm64   3.53.1
+//	darwin  amd64   3.53.3
+//	darwin  arm64   3.53.3
+//	freebsd 386     3.53.3
+//	freebsd amd64   3.53.3
+//	freebsd arm     3.53.3
+//	freebsd arm64   3.53.3
+//	linux   386     3.53.3
+//	linux   amd64   3.53.3
+//	linux   arm     3.53.3
+//	linux   arm64   3.53.3
+//	linux   loong64 3.53.3
+//	linux   ppc64le 3.53.3
+//	linux   riscv64 3.53.3
+//	linux   s390x   3.53.3
+//	windows 386     3.53.3
+//	windows amd64   3.53.3
+//	windows arm64   3.53.3
 //
 // # Supported platforms and architectures - Tier 2
 //
@@ -41,12 +43,12 @@
 //
 // WARNING: Not all tests are passing in Tier 2 targets - do NOT use in
 // production. Or at least test thoroughly that your particular workload
-// performs correctly because it is lucky to not use any of the bugy code.
+// performs correctly because it is lucky to not use any of the buggy code.
 //
 //	OS         Arch    SQLite version
 //	---------------------------------
-//	openbsd7.8 amd64   3.53.1
-//	openbsd7.8 arm64   3.53.1
+//	openbsd7.8 amd64   3.53.3
+//	openbsd7.8 arm64   3.53.3
 //
 // # Builders
 //
