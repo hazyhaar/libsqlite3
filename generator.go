@@ -82,7 +82,12 @@ func main() {
 	}
 
 	switch target {
-	case "freebsd/amd64", "freebsd/arm64", "openbsd/amd64", "openbsd/arm64", "darwin/amd64", "darwin/arm64", "netbsd/amd64":
+	case
+		"freebsd/amd64", "freebsd/arm64", "freebsd/386", "freebsd/arm",
+		"openbsd/amd64", "openbsd/arm64",
+		"darwin/amd64", "darwin/arm64",
+		"netbsd/amd64":
+
 		sed = "gsed"
 	}
 
