@@ -1,10 +1,11 @@
-// Code generated for darwin/arm64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_arm64.go -I /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530100 /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530100/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for darwin/arm64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_arm64.go -I /tmp/libsqlite3/sqlite-src-3530100 /tmp/libsqlite3/sqlite-src-3530100/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build darwin && arm64
 
 package main
 
 import (
+	"math"
 	"reflect"
 	"unsafe"
 
@@ -12,6 +13,7 @@ import (
 	"modernc.org/libsqlite3"
 )
 
+var _ = math.Pi
 var _ reflect.Type
 var _ unsafe.Pointer
 
@@ -233,7 +235,7 @@ func HashInit(tls *libc.TLS) {
 		if !(k < uint32(256)) {
 			break
 		}
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(k))) = uint8(k)
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(k))) = uint8(k)
 		goto _1
 	_1:
 		;
@@ -261,10 +263,10 @@ func HashUpdate(tls *libc.TLS, aData uintptr, nData uint32) {
 		if !(k < nData) {
 			break
 		}
-		j = libc.Uint8FromInt32(int32(j) + (libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))) + libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(aData + uintptr(k))))))
-		t = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j)))
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j))) = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i))) = t
+		j = libc.Uint8FromInt32(int32(j) + (libc.Int32FromUint8(**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))) + libc.Int32FromUint8(**(**uint8)(__ccgo_up(aData + uintptr(k))))))
+		t = **(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j)))
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j))) = **(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i))) = t
 		i = i + 1
 		goto _1
 	_1:
@@ -293,12 +295,12 @@ func HashFinal(tls *libc.TLS) {
 			break
 		}
 		i = i + 1
-		t = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))
+		t = **(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))
 		j = libc.Uint8FromInt32(int32(j) + libc.Int32FromUint8(t))
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i))) = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j)))
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j))) = t
-		t = libc.Uint8FromInt32(int32(t) + libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))))
-		*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(k))) = *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(t)))
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i))) = **(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j)))
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(j))) = t
+		t = libc.Uint8FromInt32(int32(t) + libc.Int32FromUint8(**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(i)))))
+		**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(k))) = **(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 3 + uintptr(t)))
 		goto _1
 	_1:
 		;
@@ -344,18 +346,18 @@ func integerValue(tls *libc.TLS, zArg uintptr) (r int32) {
 	_, _, _, _, _, _, _, _, _ = i, isNeg, v, x, v1, v2, v4, v5, v9
 	v = 0
 	isNeg = 0
-	if int32(*(*int8)(unsafe.Pointer(zArg))) == int32('-') {
+	if int32(**(**int8)(__ccgo_up(zArg))) == int32('-') {
 		isNeg = int32(1)
 		zArg = zArg + 1
 	} else {
-		if int32(*(*int8)(unsafe.Pointer(zArg))) == int32('+') {
+		if int32(**(**int8)(__ccgo_up(zArg))) == int32('+') {
 			zArg = zArg + 1
 		}
 	}
-	if int32(*(*int8)(unsafe.Pointer(zArg))) == int32('0') && int32(*(*int8)(unsafe.Pointer(zArg + 1))) == int32('x') {
+	if int32(**(**int8)(__ccgo_up(zArg))) == int32('0') && int32(**(**int8)(__ccgo_up(zArg + 1))) == int32('x') {
 		zArg = zArg + uintptr(2)
 		for {
-			v1 = hexDigitValue(tls, *(*int8)(unsafe.Pointer(zArg)))
+			v1 = hexDigitValue(tls, **(**int8)(__ccgo_up(zArg)))
 			x = v1
 			if !(v1 >= 0) {
 				break
@@ -365,11 +367,11 @@ func integerValue(tls *libc.TLS, zArg uintptr) (r int32) {
 		}
 	} else {
 		for {
-			v4 = int32(*(*int8)(unsafe.Pointer(zArg)))
+			v4 = int32(**(**int8)(__ccgo_up(zArg)))
 			if v4 < 0 || v4 >= libc.Int32FromInt32(1)<<libc.Int32FromInt32(8) {
 				v2 = 0
 			} else {
-				v2 = libc.BoolInt32(!!(uint64(*(*__uint32_t)(unsafe.Pointer(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v4)*4)))&uint64(0x00000400) != 0))
+				v2 = libc.BoolInt32(!!(uint64(**(**__uint32_t)(__ccgo_up(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v4)*4)))&uint64(0x00000400) != 0))
 			}
 			v5 = v2
 			goto _6
@@ -380,7 +382,7 @@ func integerValue(tls *libc.TLS, zArg uintptr) (r int32) {
 			if !(v1 != 0) {
 				break
 			}
-			v = v*int64(10) + int64(*(*int8)(unsafe.Pointer(zArg))) - int64('0')
+			v = v*int64(10) + int64(**(**int8)(__ccgo_up(zArg))) - int64('0')
 			zArg = zArg + 1
 		}
 	}
@@ -466,9 +468,9 @@ func speedtest1_timestamp(tls *libc.TLS) (r sqlite3_int64) {
 		(*(*func(*libc.TLS, uintptr, uintptr) int32)(unsafe.Pointer(&struct{ uintptr }{(*sqlite3_vfs)(unsafe.Pointer(clockVfs)).FxCurrentTimeInt64})))(tls, clockVfs, bp)
 	} else {
 		(*(*func(*libc.TLS, uintptr, uintptr) int32)(unsafe.Pointer(&struct{ uintptr }{(*sqlite3_vfs)(unsafe.Pointer(clockVfs)).FxCurrentTime})))(tls, clockVfs, bp+8)
-		*(*sqlite3_int64)(unsafe.Pointer(bp)) = int64(float64(*(*float64)(unsafe.Pointer(bp + 8)) * libc.Float64FromFloat64(8.64e+07)))
+		**(**sqlite3_int64)(__ccgo_up(bp)) = int64(float64(**(**float64)(__ccgo_up(bp + 8)) * libc.Float64FromFloat64(8.64e+07)))
 	}
-	return *(*sqlite3_int64)(unsafe.Pointer(bp))
+	return **(**sqlite3_int64)(__ccgo_up(bp))
 }
 
 var clockVfs = uintptr(0)
@@ -539,7 +541,7 @@ func speedtest1_numbername(tls *libc.TLS, n uint32, zOut uintptr, nOut int32) (r
 		if i != 0 && i < nOut-int32(1) {
 			v1 = i
 			i = i + 1
-			*(*int8)(unsafe.Pointer(zOut + uintptr(v1))) = int8(' ')
+			**(**int8)(__ccgo_up(zOut + uintptr(v1))) = int8(' ')
 		}
 		i = i + speedtest1_numbername(tls, n/uint32(1000000), zOut+uintptr(i), nOut-i)
 		libsqlite3.Xsqlite3_snprintf(tls, nOut-i, zOut+uintptr(i), __ccgo_ts+264, 0)
@@ -550,7 +552,7 @@ func speedtest1_numbername(tls *libc.TLS, n uint32, zOut uintptr, nOut int32) (r
 		if i != 0 && i < nOut-int32(1) {
 			v1 = i
 			i = i + 1
-			*(*int8)(unsafe.Pointer(zOut + uintptr(v1))) = int8(' ')
+			**(**int8)(__ccgo_up(zOut + uintptr(v1))) = int8(' ')
 		}
 		i = i + speedtest1_numbername(tls, n/uint32(1000), zOut+uintptr(i), nOut-i)
 		libsqlite3.Xsqlite3_snprintf(tls, nOut-i, zOut+uintptr(i), __ccgo_ts+273, 0)
@@ -561,7 +563,7 @@ func speedtest1_numbername(tls *libc.TLS, n uint32, zOut uintptr, nOut int32) (r
 		if i != 0 && i < nOut-int32(1) {
 			v1 = i
 			i = i + 1
-			*(*int8)(unsafe.Pointer(zOut + uintptr(v1))) = int8(' ')
+			**(**int8)(__ccgo_up(zOut + uintptr(v1))) = int8(' ')
 		}
 		libsqlite3.Xsqlite3_snprintf(tls, nOut-i, zOut+uintptr(i), __ccgo_ts+283, libc.VaList(bp+8, ones[n/uint32(100)]))
 		i = i + libc.Int32FromUint64(libc.Xstrlen(tls, zOut+uintptr(i)))
@@ -571,7 +573,7 @@ func speedtest1_numbername(tls *libc.TLS, n uint32, zOut uintptr, nOut int32) (r
 		if i != 0 && i < nOut-int32(1) {
 			v1 = i
 			i = i + 1
-			*(*int8)(unsafe.Pointer(zOut + uintptr(v1))) = int8(' ')
+			**(**int8)(__ccgo_up(zOut + uintptr(v1))) = int8(' ')
 		}
 		libsqlite3.Xsqlite3_snprintf(tls, nOut-i, zOut+uintptr(i), __ccgo_ts+294, libc.VaList(bp+8, tens[n/uint32(10)]))
 		i = i + libc.Int32FromUint64(libc.Xstrlen(tls, zOut+uintptr(i)))
@@ -581,7 +583,7 @@ func speedtest1_numbername(tls *libc.TLS, n uint32, zOut uintptr, nOut int32) (r
 		if i != 0 && i < nOut-int32(1) {
 			v1 = i
 			i = i + 1
-			*(*int8)(unsafe.Pointer(zOut + uintptr(v1))) = int8(' ')
+			**(**int8)(__ccgo_up(zOut + uintptr(v1))) = int8(' ')
 		}
 		libsqlite3.Xsqlite3_snprintf(tls, nOut-i, zOut+uintptr(i), __ccgo_ts+294, libc.VaList(bp+8, ones[n]))
 		i = i + libc.Int32FromUint64(libc.Xstrlen(tls, zOut+uintptr(i)))
@@ -648,7 +650,7 @@ func speedtest1_begin_test(tls *libc.TLS, iTestNum int32, zTestName uintptr, va 
 	_ = ap
 	n = libc.Int32FromUint64(libc.Xstrlen(tls, zName))
 	if n > int32(NAMEWIDTH) {
-		*(*int8)(unsafe.Pointer(zName + 60)) = 0
+		**(**int8)(__ccgo_up(zName + 60)) = 0
 		n = int32(NAMEWIDTH)
 	}
 	if g.FpScript != 0 {
@@ -713,7 +715,7 @@ func speedtest1_final(tls *libc.TLS) {
 			if !(i < int32(24)) {
 				break
 			}
-			libc.Xprintf(tls, __ccgo_ts+459, libc.VaList(bp+8, libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(i))))))
+			libc.Xprintf(tls, __ccgo_ts+459, libc.VaList(bp+8, libc.Int32FromUint8(**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(i))))))
 			goto _1
 		_1:
 			;
@@ -740,14 +742,14 @@ func printSql(tls *libc.TLS, zSql uintptr) {
 	n = libc.Int32FromUint64(libc.Xstrlen(tls, zSql))
 	for {
 		if v11 = n > 0; v11 {
-			if v10 = int32(*(*int8)(unsafe.Pointer(zSql + uintptr(n-int32(1))))) == int32(';'); !v10 {
-				v3 = libc.Int32FromUint8(libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(zSql + uintptr(n-int32(1))))))
+			if v10 = int32(**(**int8)(__ccgo_up(zSql + uintptr(n-int32(1))))) == int32(';'); !v10 {
+				v3 = libc.Int32FromUint8(libc.Uint8FromInt8(**(**int8)(__ccgo_up(zSql + uintptr(n-int32(1))))))
 				v4 = uint64(0x00004000)
 				v8 = libc.BoolInt32(v3 & ^libc.Int32FromInt32(0x7F) == 0)
 				goto _9
 			_9:
 				if v8 != 0 {
-					v7 = libc.BoolInt32(!!(uint64(*(*__uint32_t)(unsafe.Pointer(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v3)*4)))&v4 != 0))
+					v7 = libc.BoolInt32(!!(uint64(**(**__uint32_t)(__ccgo_up(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v3)*4)))&v4 != 0))
 				} else {
 					v7 = libc.BoolInt32(!!(libc.X__maskrune(tls, v3, v4) != 0))
 				}
@@ -801,13 +803,13 @@ func speedtest1_exec(tls *libc.TLS, zFormat uintptr, va uintptr) {
 	if g.FbSqlOnly != 0 {
 		printSql(tls, zSql)
 	} else {
-		*(*uintptr)(unsafe.Pointer(bp)) = uintptr(0)
+		**(**uintptr)(__ccgo_up(bp)) = uintptr(0)
 		if g.FpScript != 0 {
 			libc.Xfprintf(tls, g.FpScript, __ccgo_ts+504, libc.VaList(bp+16, zSql))
 		}
 		rc = libsqlite3.Xsqlite3_exec(tls, g.Fdb, zSql, uintptr(0), uintptr(0), bp)
-		if *(*uintptr)(unsafe.Pointer(bp)) != 0 {
-			fatal_error(tls, __ccgo_ts+509, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(bp)), zSql))
+		if **(**uintptr)(__ccgo_up(bp)) != 0 {
+			fatal_error(tls, __ccgo_ts+509, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(bp)), zSql))
 		}
 		if rc != SQLITE_OK {
 			fatal_error(tls, __ccgo_ts+527, libc.VaList(bp+16, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
@@ -843,21 +845,21 @@ func speedtest1_once(tls *libc.TLS, zFormat uintptr, va uintptr) (r uintptr) {
 			fatal_error(tls, __ccgo_ts+543, libc.VaList(bp+16, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
 		}
 		if g.FpScript != 0 {
-			z = libsqlite3.Xsqlite3_expanded_sql(tls, *(*uintptr)(unsafe.Pointer(bp)))
+			z = libsqlite3.Xsqlite3_expanded_sql(tls, **(**uintptr)(__ccgo_up(bp)))
 			libc.Xfprintf(tls, g.FpScript, __ccgo_ts+558, libc.VaList(bp+16, z))
 			libsqlite3.Xsqlite3_free(tls, z)
 		}
-		if libsqlite3.Xsqlite3_step(tls, *(*uintptr)(unsafe.Pointer(bp))) == int32(SQLITE_ROW) {
-			z1 = libsqlite3.Xsqlite3_column_text(tls, *(*uintptr)(unsafe.Pointer(bp)), 0)
+		if libsqlite3.Xsqlite3_step(tls, **(**uintptr)(__ccgo_up(bp))) == int32(SQLITE_ROW) {
+			z1 = libsqlite3.Xsqlite3_column_text(tls, **(**uintptr)(__ccgo_up(bp)), 0)
 			if z1 != 0 {
 				zResult = libsqlite3.Xsqlite3_mprintf(tls, __ccgo_ts+294, libc.VaList(bp+16, z1))
 			}
 		}
-		rc1 = libsqlite3.Xsqlite3_reset(tls, *(*uintptr)(unsafe.Pointer(bp)))
+		rc1 = libsqlite3.Xsqlite3_reset(tls, **(**uintptr)(__ccgo_up(bp)))
 		if rc1 != SQLITE_OK {
-			fatal_error(tls, __ccgo_ts+562, libc.VaList(bp+16, libsqlite3.Xsqlite3_sql(tls, *(*uintptr)(unsafe.Pointer(bp))), rc1, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
+			fatal_error(tls, __ccgo_ts+562, libc.VaList(bp+16, libsqlite3.Xsqlite3_sql(tls, **(**uintptr)(__ccgo_up(bp))), rc1, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
 		}
-		libsqlite3.Xsqlite3_finalize(tls, *(*uintptr)(unsafe.Pointer(bp)))
+		libsqlite3.Xsqlite3_finalize(tls, **(**uintptr)(__ccgo_up(bp)))
 	}
 	libsqlite3.Xsqlite3_free(tls, zSql)
 	speedtest1_shrink_memory(tls)
@@ -926,8 +928,8 @@ func speedtest1_run(tls *libc.TLS) {
 			len1 = libc.Int32FromUint64(libc.Xstrlen(tls, z1))
 			if g.FbVerify != 0 {
 				eType = libsqlite3.Xsqlite3_column_type(tls, g.FpStmt, i)
-				(*(*[2]uint8)(unsafe.Pointer(bp)))[0] = uint8('\n')
-				(*(*[2]uint8)(unsafe.Pointer(bp)))[int32(1)] = libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(__ccgo_ts + 588 + uintptr(eType))))
+				(**(**[2]uint8)(__ccgo_up(bp)))[0] = uint8('\n')
+				(**(**[2]uint8)(__ccgo_up(bp)))[int32(1)] = libc.Uint8FromInt8(**(**int8)(__ccgo_up(__ccgo_ts + 588 + uintptr(eType))))
 				if g.FnResByte != 0 {
 					HashUpdate(tls, bp, uint32(2))
 				} else {
@@ -947,8 +949,8 @@ func speedtest1_run(tls *libc.TLS) {
 							if !(iBlob < nBlob) {
 								break
 							}
-							(*(*[2]uint8)(unsafe.Pointer(bp + 2)))[0] = libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(__ccgo_ts + 595 + uintptr(libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(aBlob + uintptr(iBlob))))>>int32(4)))))
-							(*(*[2]uint8)(unsafe.Pointer(bp + 2)))[int32(1)] = libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(__ccgo_ts + 595 + uintptr(libc.Int32FromUint8(*(*uint8)(unsafe.Pointer(aBlob + uintptr(iBlob))))&int32(15)))))
+							(**(**[2]uint8)(__ccgo_up(bp + 2)))[0] = libc.Uint8FromInt8(**(**int8)(__ccgo_up(__ccgo_ts + 595 + uintptr(libc.Int32FromUint8(**(**uint8)(__ccgo_up(aBlob + uintptr(iBlob))))>>int32(4)))))
+							(**(**[2]uint8)(__ccgo_up(bp + 2)))[int32(1)] = libc.Uint8FromInt8(**(**int8)(__ccgo_up(__ccgo_ts + 595 + uintptr(libc.Int32FromUint8(**(**uint8)(__ccgo_up(aBlob + uintptr(iBlob))))&int32(15)))))
 							HashUpdate(tls, bp+2, uint32(2))
 							goto _2
 						_2:
@@ -967,7 +969,7 @@ func speedtest1_run(tls *libc.TLS) {
 					v4 = uintptr(unsafe.Pointer(&g)) + 144
 					v3 = *(*int32)(unsafe.Pointer(v4))
 					*(*int32)(unsafe.Pointer(v4)) = *(*int32)(unsafe.Pointer(v4)) + 1
-					*(*int8)(unsafe.Pointer(uintptr(unsafe.Pointer(&g)) + 148 + uintptr(v3))) = int8(' ')
+					**(**int8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 148 + uintptr(v3))) = int8(' ')
 				}
 				libc.X__builtin___memcpy_chk(tls, uintptr(unsafe.Pointer(&g))+148+uintptr(g.FnResult), z1, libc.Uint64FromInt32(len1+int32(1)), ^__predefined_size_t(0))
 				g.FnResult += len1
@@ -982,9 +984,9 @@ func speedtest1_run(tls *libc.TLS) {
 		libsqlite3.Xsqlite3_prepare_v2(tls, g.Fdb, libsqlite3.Xsqlite3_sql(tls, g.FpStmt), -int32(1), bp+8, uintptr(0))
 		rc = libsqlite3.Xsqlite3_finalize(tls, g.FpStmt)
 		if rc != SQLITE_OK {
-			fatal_error(tls, __ccgo_ts+562, libc.VaList(bp+24, libsqlite3.Xsqlite3_sql(tls, *(*uintptr)(unsafe.Pointer(bp + 8))), rc, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
+			fatal_error(tls, __ccgo_ts+562, libc.VaList(bp+24, libsqlite3.Xsqlite3_sql(tls, **(**uintptr)(__ccgo_up(bp + 8))), rc, libsqlite3.Xsqlite3_errmsg(tls, g.Fdb)))
 		}
-		g.FpStmt = *(*uintptr)(unsafe.Pointer(bp + 8))
+		g.FpStmt = **(**uintptr)(__ccgo_up(bp + 8))
 	} else {
 		rc = libsqlite3.Xsqlite3_reset(tls, g.FpStmt)
 		if rc != SQLITE_OK {
@@ -1008,14 +1010,14 @@ func traceCallback(tls *libc.TLS, NotUsed uintptr, zSql uintptr) {
 	n = libc.Int32FromUint64(libc.Xstrlen(tls, zSql))
 	for {
 		if v11 = n > 0; v11 {
-			if v10 = int32(*(*int8)(unsafe.Pointer(zSql + uintptr(n-int32(1))))) == int32(';'); !v10 {
-				v3 = libc.Int32FromUint8(libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(zSql + uintptr(n-int32(1))))))
+			if v10 = int32(**(**int8)(__ccgo_up(zSql + uintptr(n-int32(1))))) == int32(';'); !v10 {
+				v3 = libc.Int32FromUint8(libc.Uint8FromInt8(**(**int8)(__ccgo_up(zSql + uintptr(n-int32(1))))))
 				v4 = uint64(0x00004000)
 				v8 = libc.BoolInt32(v3 & ^libc.Int32FromInt32(0x7F) == 0)
 				goto _9
 			_9:
 				if v8 != 0 {
-					v7 = libc.BoolInt32(!!(uint64(*(*__uint32_t)(unsafe.Pointer(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v3)*4)))&v4 != 0))
+					v7 = libc.BoolInt32(!!(uint64(**(**__uint32_t)(__ccgo_up(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v3)*4)))&v4 != 0))
 				} else {
 					v7 = libc.BoolInt32(!!(libc.X__maskrune(tls, v3, v4) != 0))
 				}
@@ -1087,7 +1089,7 @@ func testset_main(tls *libc.TLS) {
 	v1 = g.FszTest * libc.Int32FromInt32(500)
 	n = v1
 	sz = v1
-	(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = 0
+	(**(**[2000]int8)(__ccgo_up(bp)))[0] = 0
 	maxb = libc.Int32FromUint32(roundup_allones(tls, libc.Uint32FromInt32(sz)))
 	speedtest1_begin_test(tls, int32(100), __ccgo_ts+612, libc.VaList(bp+2008, n))
 	speedtest1_exec(tls, __ccgo_ts+648, 0)
@@ -1191,10 +1193,10 @@ func testset_main(tls *libc.TLS) {
 		}
 		if (i-int32(1))%g.FnRepeat == 0 {
 			x1 = speedtest1_random(tls) % libc.Uint32FromInt32(maxb)
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[0] = int8('%')
 			len1 = speedtest1_numbername(tls, libc.Uint32FromInt32(i), bp+uintptr(1), libc.Int32FromUint64(libc.Uint64FromInt64(2000)-libc.Uint64FromInt32(2)))
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1] = int8('%')
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1+int32(1)] = 0
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1+int32(1)] = 0
 		}
 		libsqlite3.Xsqlite3_bind_text(tls, g.FpStmt, int32(1), bp, len1+int32(1), libc.UintptrFromInt32(0))
 		speedtest1_run(tls)
@@ -1216,10 +1218,10 @@ func testset_main(tls *libc.TLS) {
 		}
 		if (i-int32(1))%g.FnRepeat == 0 {
 			x1 = speedtest1_random(tls) % libc.Uint32FromInt32(maxb)
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[0] = int8('%')
 			len1 = speedtest1_numbername(tls, libc.Uint32FromInt32(i), bp+uintptr(1), libc.Int32FromUint64(libc.Uint64FromInt64(2000)-libc.Uint64FromInt32(2)))
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1] = int8('%')
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1+int32(1)] = 0
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1+int32(1)] = 0
 		}
 		libsqlite3.Xsqlite3_bind_text(tls, g.FpStmt, int32(1), bp, len1+int32(1), libc.UintptrFromInt32(0))
 		speedtest1_run(tls)
@@ -1241,10 +1243,10 @@ func testset_main(tls *libc.TLS) {
 		}
 		if (i-int32(1))%g.FnRepeat == 0 {
 			x1 = speedtest1_random(tls) % libc.Uint32FromInt32(maxb)
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[0] = int8('%')
 			len1 = speedtest1_numbername(tls, libc.Uint32FromInt32(i), bp+uintptr(1), libc.Int32FromUint64(libc.Uint64FromInt64(2000)-libc.Uint64FromInt32(2)))
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1] = int8('%')
-			(*(*[2000]int8)(unsafe.Pointer(bp)))[len1+int32(1)] = 0
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1] = int8('%')
+			(**(**[2000]int8)(__ccgo_up(bp)))[len1+int32(1)] = 0
 		}
 		libsqlite3.Xsqlite3_bind_text(tls, g.FpStmt, int32(1), bp, len1+int32(1), libc.UintptrFromInt32(0))
 		speedtest1_run(tls)
@@ -1477,7 +1479,7 @@ func testset_main(tls *libc.TLS) {
 	v1 = g.FszTest * libc.Int32FromInt32(700)
 	n = v1
 	sz = v1
-	(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = 0
+	(**(**[2000]int8)(__ccgo_up(bp)))[0] = 0
 	maxb = libc.Int32FromUint32(roundup_allones(tls, libc.Uint32FromInt32(sz/int32(3))))
 	speedtest1_begin_test(tls, int32(400), __ccgo_ts+3523, libc.VaList(bp+2008, n))
 	speedtest1_exec(tls, __ccgo_ts+648, 0)
@@ -1531,7 +1533,7 @@ func testset_main(tls *libc.TLS) {
 	v1 = g.FszTest * libc.Int32FromInt32(700)
 	n = v1
 	sz = v1
-	(*(*[2000]int8)(unsafe.Pointer(bp)))[0] = 0
+	(**(**[2000]int8)(__ccgo_up(bp)))[0] = 0
 	maxb = libc.Int32FromUint32(roundup_allones(tls, libc.Uint32FromInt32(sz/int32(3))))
 	speedtest1_begin_test(tls, int32(500), __ccgo_ts+3703, libc.VaList(bp+2008, n))
 	speedtest1_exec(tls, __ccgo_ts+648, 0)
@@ -1845,19 +1847,19 @@ func testset_app(tls *libc.TLS) {
 			break
 		}
 		dbMain = g.Fdb
-		*(*uintptr)(unsafe.Pointer(bp)) = uintptr(0)
-		if g.FzDbName != 0 && *(*int8)(unsafe.Pointer(g.FzDbName)) != 0 {
+		**(**uintptr)(__ccgo_up(bp)) = uintptr(0)
+		if g.FzDbName != 0 && **(**int8)(__ccgo_up(g.FzDbName)) != 0 {
 			if libsqlite3.Xsqlite3_open_v2(tls, g.FzDbName, bp, int32(SQLITE_OPEN_READWRITE), g.FzVfs) != 0 {
 				fatal_error(tls, __ccgo_ts+18708, libc.VaList(bp+16, g.FzDbName))
 			}
-			g.Fdb = *(*uintptr)(unsafe.Pointer(bp))
+			g.Fdb = **(**uintptr)(__ccgo_up(bp))
 		}
 		speedtest1_exec(tls, __ccgo_ts+18739, 0)
 		speedtest1_exec(tls, __ccgo_ts+19180, 0)
 		speedtest1_exec(tls, __ccgo_ts+19383, 0)
 		speedtest1_exec(tls, __ccgo_ts+19711, 0)
 		speedtest1_exec(tls, __ccgo_ts+19773, 0)
-		libsqlite3.Xsqlite3_close(tls, *(*uintptr)(unsafe.Pointer(bp)))
+		libsqlite3.Xsqlite3_close(tls, **(**uintptr)(__ccgo_up(bp)))
 		g.Fdb = dbMain
 		goto _1
 	_1:
@@ -1886,8 +1888,8 @@ func twoCoords(tls *libc.TLS, p1 int32, p2 int32, mx uint32, pX0 uintptr, pX1 ui
 	d = speedtest1_random(tls)%span + uint32(1)
 	x0 = speedtest1_random(tls)%(mx-d) + uint32(1)
 	x1 = x0 + d
-	*(*uint32)(unsafe.Pointer(pX0)) = x0
-	*(*uint32)(unsafe.Pointer(pX1)) = x1
+	**(**uint32)(__ccgo_up(pX0)) = x0
+	**(**uint32)(__ccgo_up(pX1)) = x1
 }
 
 // C documentation
@@ -1903,7 +1905,7 @@ func twoCoords(tls *libc.TLS, p1 int32, p2 int32, mx uint32, pX0 uintptr, pX1 ui
 //	**     SELECT count(*) FROM rt1 WHERE y1>=10 AND y0<=20;
 //	*/
 func xsliceGeometryCallback(tls *libc.TLS, p uintptr, nCoord int32, aCoord uintptr, pRes uintptr) (r int32) {
-	*(*int32)(unsafe.Pointer(pRes)) = libc.BoolInt32(*(*float64)(unsafe.Pointer(aCoord + 3*8)) >= *(*sqlite3_rtree_dbl)(unsafe.Pointer((*sqlite3_rtree_geometry)(unsafe.Pointer(p)).FaParam)) && *(*float64)(unsafe.Pointer(aCoord + 2*8)) <= *(*sqlite3_rtree_dbl)(unsafe.Pointer((*sqlite3_rtree_geometry)(unsafe.Pointer(p)).FaParam + 1*8)))
+	**(**int32)(__ccgo_up(pRes)) = libc.BoolInt32(**(**float64)(__ccgo_up(aCoord + 3*8)) >= **(**sqlite3_rtree_dbl)(__ccgo_up((*sqlite3_rtree_geometry)(unsafe.Pointer(p)).FaParam)) && **(**float64)(__ccgo_up(aCoord + 2*8)) <= **(**sqlite3_rtree_dbl)(__ccgo_up((*sqlite3_rtree_geometry)(unsafe.Pointer(p)).FaParam + 1*8)))
 	return SQLITE_OK
 }
 
@@ -1942,12 +1944,12 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		twoCoords(tls, p1, p2, mxCoord, bp+8, bp+12)
 		twoCoords(tls, p1, p2, mxCoord, bp+16, bp+20)
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp))))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(3), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp + 4))))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(4), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp + 8))))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(5), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp + 12))))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(6), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp + 16))))
-		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(7), libc.Int32FromUint32(*(*uint32)(unsafe.Pointer(bp + 20))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(3), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp + 4))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(4), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp + 8))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(5), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp + 12))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(6), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp + 16))))
+		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(7), libc.Int32FromUint32(**(**uint32)(__ccgo_up(bp + 20))))
 		speedtest1_run(tls)
 		goto _2
 	_2:
@@ -1972,7 +1974,7 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 		speedtest1_run(tls)
-		*(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
+		**(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
 		goto _3
 	_3:
 		;
@@ -1992,8 +1994,8 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 			libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 			libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 			speedtest1_run(tls)
-			if *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
-				fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
+			if **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
+				fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
 			}
 			goto _4
 		_4:
@@ -2014,7 +2016,7 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 		speedtest1_run(tls)
-		*(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
+		**(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
 		goto _5
 	_5:
 		;
@@ -2034,8 +2036,8 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 			libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 			libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 			speedtest1_run(tls)
-			if *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
-				fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
+			if **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
+				fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
 			}
 			goto _6
 		_6:
@@ -2057,8 +2059,8 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 		speedtest1_run(tls)
-		if *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
-			fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, *(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
+		if **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) != libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148) {
+			fatal_error(tls, __ccgo_ts+20845, libc.VaList(bp+32, i, i*iStep, (i+uint32(1))*iStep, **(**int32)(__ccgo_up(aCheck + uintptr(i)*4)), libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)))
 		}
 		goto _7
 	_7:
@@ -2078,7 +2080,7 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(2), libc.Int32FromUint32((i+uint32(1))*iStep))
 		speedtest1_run(tls)
-		*(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
+		**(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
 		goto _8
 	_8:
 		;
@@ -2128,7 +2130,7 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		}
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		speedtest1_run(tls)
-		*(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
+		**(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
 		goto _11
 	_11:
 		;
@@ -2162,7 +2164,7 @@ func testset_rtree(tls *libc.TLS, p1 int32, p2 int32) {
 		}
 		libsqlite3.Xsqlite3_bind_int(tls, g.FpStmt, int32(1), libc.Int32FromUint32(i*iStep))
 		speedtest1_run(tls)
-		*(*int32)(unsafe.Pointer(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
+		**(**int32)(__ccgo_up(aCheck + uintptr(i)*4)) = libc.Xatoi(tls, uintptr(unsafe.Pointer(&g))+148)
 		goto _13
 	_13:
 		;
@@ -2674,7 +2676,7 @@ func testset_parsenumber(tls *libc.TLS) {
 func xCompileOptions(tls *libc.TLS, pCtx uintptr, nVal int32, azVal uintptr, azCol uintptr) (r int32) {
 	bp := tls.Alloc(16)
 	defer tls.Free(16)
-	libc.Xprintf(tls, __ccgo_ts+36491, libc.VaList(bp+8, *(*uintptr)(unsafe.Pointer(azVal))))
+	libc.Xprintf(tls, __ccgo_ts+36491, libc.VaList(bp+8, **(**uintptr)(__ccgo_up(azVal))))
 	return SQLITE_OK
 }
 
@@ -2735,9 +2737,9 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 		if !(i < argc) {
 			break
 		}
-		z = *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))
-		if int32(*(*int8)(unsafe.Pointer(z))) == int32('-') {
-			for cond := true; cond; cond = int32(*(*int8)(unsafe.Pointer(z))) == int32('-') {
+		z = **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))
+		if int32(**(**int8)(__ccgo_up(z))) == int32('-') {
+			for cond := true; cond; cond = int32(**(**int8)(__ccgo_up(z))) == int32('-') {
 				z = z + 1
 			}
 			if libc.Xstrcmp(tls, z, __ccgo_ts+36561) == 0 {
@@ -2748,11 +2750,11 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 				} else {
 					if libc.Xstrcmp(tls, z, __ccgo_ts+36589) == 0 {
 						if i >= argc-int32(1) {
-							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 						}
 						i = i + 1
 						v2 = i
-						cacheSize = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+						cacheSize = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 					} else {
 						if libc.Xstrcmp(tls, z, __ccgo_ts+36623) == 0 {
 							doExclusive = int32(1)
@@ -2769,17 +2771,17 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 									} else {
 										if libc.Xstrcmp(tls, z, __ccgo_ts+36662) == 0 {
 											if i >= argc-int32(1) {
-												fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+												fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 											}
-											nHardHeapLmt = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(1))*8)))
+											nHardHeapLmt = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 											i = i + int32(1)
 										} else {
 											if libc.Xstrcmp(tls, z, __ccgo_ts+36678) == 0 {
 												if i >= argc-int32(2) {
-													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 												}
-												nHeap = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(1))*8)))
-												mnHeap = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(2))*8)))
+												nHeap = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
+												mnHeap = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
 												i = i + int32(2)
 											} else {
 												if libc.Xstrcmp(tls, z, __ccgo_ts+36683) == 0 {
@@ -2787,26 +2789,26 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 												} else {
 													if libc.Xstrcmp(tls, z, __ccgo_ts+36694) == 0 {
 														if i >= argc-int32(1) {
-															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 														}
 														i = i + 1
 														v2 = i
-														zJMode = *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8))
+														zJMode = **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8))
 													} else {
 														if libc.Xstrcmp(tls, z, __ccgo_ts+36702) == 0 {
 															if i >= argc-int32(1) {
-																fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 															}
 															i = i + 1
 															v2 = i
-															zKey = *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8))
+															zKey = **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8))
 														} else {
 															if libc.Xstrcmp(tls, z, __ccgo_ts+36706) == 0 {
 																if i >= argc-int32(2) {
-																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																}
-																nLook = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(1))*8)))
-																szLook = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(2))*8)))
+																nLook = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
+																szLook = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
 																i = i + int32(2)
 															} else {
 																if libc.Xstrcmp(tls, z, __ccgo_ts+36716) == 0 {
@@ -2820,11 +2822,11 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																		} else {
 																			if libc.Xstrcmp(tls, z, __ccgo_ts+36744) == 0 {
 																				if i >= argc-int32(1) {
-																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																				}
 																				i = i + 1
 																				v2 = i
-																				mmapSize = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+																				mmapSize = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 																			} else {
 																				if libc.Xstrcmp(tls, z, __ccgo_ts+36749) == 0 {
 																					openFlags = openFlags | int32(SQLITE_OPEN_NOMUTEX)
@@ -2837,32 +2839,32 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																						} else {
 																							if libc.Xstrcmp(tls, z, __ccgo_ts+36781) == 0 {
 																								if i >= argc-int32(1) {
-																									fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																									fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																								}
 																								i = i + 1
-																								if libc.Xstrcmp(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8)), __ccgo_ts+36788) == 0 {
+																								if libc.Xstrcmp(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), __ccgo_ts+36788) == 0 {
 																									g.FhashFile = libc.X__stdoutp
 																								} else {
-																									g.FhashFile = libc.Xfopen(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8)), __ccgo_ts+36790)
+																									g.FhashFile = libc.Xfopen(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), __ccgo_ts+36790)
 																									if g.FhashFile == uintptr(0) {
-																										fatal_error(tls, __ccgo_ts+36793, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																										fatal_error(tls, __ccgo_ts+36793, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																									}
 																								}
 																							} else {
 																								if libc.Xstrcmp(tls, z, __ccgo_ts+36823) == 0 {
 																									if i >= argc-int32(1) {
-																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																									}
 																									i = i + 1
 																									v2 = i
-																									pageSize = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+																									pageSize = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 																								} else {
 																									if libc.Xstrcmp(tls, z, __ccgo_ts+36832) == 0 {
 																										if i >= argc-int32(2) {
-																											fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																											fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																										}
-																										nPCache = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(1))*8)))
-																										szPCache = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(2))*8)))
+																										nPCache = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
+																										szPCache = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
 																										doPCache = int32(1)
 																										i = i + int32(2)
 																									} else {
@@ -2871,11 +2873,11 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																										} else {
 																											if libc.Xstrcmp(tls, z, __ccgo_ts+36862) == 0 {
 																												if i >= argc-int32(1) {
-																													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																												}
 																												i = i + 1
 																												v2 = i
-																												g.FnRepeat = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+																												g.FnRepeat = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 																											} else {
 																												if libc.Xstrcmp(tls, z, __ccgo_ts+36869) == 0 {
 																													g.FbReprepare = int32(1)
@@ -2888,16 +2890,16 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																														} else {
 																															if libc.Xstrcmp(tls, z, __ccgo_ts+36903) == 0 {
 																																if i >= argc-int32(1) {
-																																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																}
 																																if g.FpScript != 0 {
 																																	libc.Xfclose(tls, g.FpScript)
 																																}
 																																i = i + 1
 																																v2 = i
-																																g.FpScript = libc.Xfopen(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)), __ccgo_ts+36790)
+																																g.FpScript = libc.Xfopen(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)), __ccgo_ts+36790)
 																																if g.FpScript == uintptr(0) {
-																																	fatal_error(tls, __ccgo_ts+36910, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																	fatal_error(tls, __ccgo_ts+36910, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																}
 																															} else {
 																																if libc.Xstrcmp(tls, z, __ccgo_ts+36943) == 0 {
@@ -2908,19 +2910,19 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																																	} else {
 																																		if libc.Xstrcmp(tls, z, __ccgo_ts+36965) == 0 {
 																																			if i >= argc-int32(1) {
-																																				fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																				fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																			}
 																																			i = i + 1
 																																			v3 = i
-																																			v2 = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v3)*8)))
+																																			v2 = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v3)*8)))
 																																			g.FszBase = v2
 																																			g.FszTest = v2
 																																		} else {
 																																			if libc.Xstrcmp(tls, z, __ccgo_ts+36970) == 0 {
 																																				if i >= argc-int32(1) {
-																																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																				}
-																																				nSoftHeapLmt = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(i+int32(1))*8)))
+																																				nSoftHeapLmt = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 																																				i = i + int32(1)
 																																			} else {
 																																				if libc.Xstrcmp(tls, z, __ccgo_ts+36986) == 0 {
@@ -2928,32 +2930,32 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																																				} else {
 																																					if libc.Xstrcmp(tls, z, __ccgo_ts+36992) == 0 {
 																																						if i >= argc-int32(1) {
-																																							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																						}
 																																						i = i + 1
-																																						if int32(*(*int8)(unsafe.Pointer(*(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))) < int32('0') || int32(*(*int8)(unsafe.Pointer(*(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))) > int32('9') || int32(*(*int8)(unsafe.Pointer(*(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8)) + 1))) != 0 {
+																																						if int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))) < int32('0') || int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))) > int32('9') || int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8)) + 1))) != 0 {
 																																							fatal_error(tls, __ccgo_ts+36997, 0)
 																																						}
-																																						g.FeTemp = int32(*(*int8)(unsafe.Pointer(*(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))) - int32('0')
+																																						g.FeTemp = int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))) - int32('0')
 																																					} else {
 																																						if libc.Xstrcmp(tls, z, __ccgo_ts+37050) == 0 {
 																																							if i >= argc-int32(1) {
-																																								fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																								fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																							}
 																																							i = i + 1
 																																							v2 = i
-																																							zTSet = *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8))
+																																							zTSet = **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8))
 																																						} else {
 																																							if libc.Xstrcmp(tls, z, __ccgo_ts+37058) == 0 {
 																																								doTrace = int32(1)
 																																							} else {
 																																								if libc.Xstrcmp(tls, z, __ccgo_ts+37064) == 0 {
 																																									if i >= argc-int32(1) {
-																																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																									}
 																																									i = i + 1
 																																									v2 = i
-																																									nThread = integerValue(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+																																									nThread = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 																																								} else {
 																																									if libc.Xstrcmp(tls, z, __ccgo_ts+37072) == 0 {
 																																										zEncoding = __ccgo_ts + 37072
@@ -2967,19 +2969,19 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																																											} else {
 																																												if libc.Xstrcmp(tls, z, __ccgo_ts+37095) == 0 {
 																																													if i >= argc-int32(1) {
-																																														fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																														fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																													}
 																																													i = i + 1
 																																													v2 = i
-																																													g.FzVfs = *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8))
+																																													g.FzVfs = **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8))
 																																												} else {
 																																													if libc.Xstrcmp(tls, z, __ccgo_ts+37099) == 0 {
 																																														if i >= argc-int32(1) {
-																																															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))))
+																																															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																														}
 																																														i = i + 1
 																																														v2 = i
-																																														g.FnReserve = libc.Xatoi(tls, *(*uintptr)(unsafe.Pointer(argv + uintptr(v2)*8)))
+																																														g.FnReserve = libc.Xatoi(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v2)*8)))
 																																													} else {
 																																														if libc.Xstrcmp(tls, z, __ccgo_ts+37107) == 0 {
 																																															g.FstmtScanStatus = int32(1)
@@ -3008,10 +3010,10 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 																																																	}
 																																																} else {
 																																																	if libc.Xstrcmp(tls, z, __ccgo_ts+37179) == 0 || libc.Xstrcmp(tls, z, __ccgo_ts+37184) == 0 {
-																																																		libc.Xprintf(tls, uintptr(unsafe.Pointer(&zHelp)), libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv))))
+																																																		libc.Xprintf(tls, uintptr(unsafe.Pointer(&zHelp)), libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv))))
 																																																		libc.Xexit(tls, 0)
 																																																	} else {
-																																																		fatal_error(tls, __ccgo_ts+37186, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8)), *(*uintptr)(unsafe.Pointer(argv))))
+																																																		fatal_error(tls, __ccgo_ts+37186, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
 																																																	}
 																																																}
 																																															}
@@ -3061,9 +3063,9 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 			}
 		} else {
 			if g.FzDbName == uintptr(0) {
-				g.FzDbName = *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8))
+				g.FzDbName = **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))
 			} else {
-				fatal_error(tls, __ccgo_ts+37227, libc.VaList(bp+16, *(*uintptr)(unsafe.Pointer(argv + uintptr(i)*8)), *(*uintptr)(unsafe.Pointer(argv))))
+				fatal_error(tls, __ccgo_ts+37227, libc.VaList(bp+16, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
 			}
 		}
 		goto _1
@@ -3191,11 +3193,11 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	if libc.Xstrcmp(tls, zTSet, __ccgo_ts+36514) == 0 {
 		zTSet = uintptr(unsafe.Pointer(&zMix1Tests))
 	}
-	for cond := true; cond; cond = *(*int8)(unsafe.Pointer(zTSet)) != 0 {
+	for cond := true; cond; cond = **(**int8)(__ccgo_up(zTSet)) != 0 {
 		zThisTest = zTSet
 		zComma = libc.Xstrchr(tls, zThisTest, int32(','))
 		if zComma != 0 {
-			*(*int8)(unsafe.Pointer(zComma)) = 0
+			**(**int8)(__ccgo_up(zComma)) = 0
 			zTSet = zComma + uintptr(1)
 		} else {
 			zTSet = __ccgo_ts + 6
@@ -3204,12 +3206,12 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 		if zSep != 0 {
 			kk = int32(1)
 			for {
-				if v23 = *(*int8)(unsafe.Pointer(zSep + uintptr(kk))) != 0; v23 {
-					v19 = libc.Int32FromUint8(libc.Uint8FromInt8(*(*int8)(unsafe.Pointer(zSep + uintptr(kk)))))
+				if v23 = **(**int8)(__ccgo_up(zSep + uintptr(kk))) != 0; v23 {
+					v19 = libc.Int32FromUint8(libc.Uint8FromInt8(**(**int8)(__ccgo_up(zSep + uintptr(kk)))))
 					if v19 < 0 || v19 >= libc.Int32FromInt32(1)<<libc.Int32FromInt32(8) {
 						v3 = 0
 					} else {
-						v3 = libc.BoolInt32(!!(uint64(*(*__uint32_t)(unsafe.Pointer(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v19)*4)))&uint64(0x00000400) != 0))
+						v3 = libc.BoolInt32(!!(uint64(**(**__uint32_t)(__ccgo_up(uintptr(unsafe.Pointer(&libc.X_DefaultRuneLocale)) + 60 + uintptr(v19)*4)))&uint64(0x00000400) != 0))
 					}
 					v20 = v3
 					goto _21
@@ -3226,14 +3228,14 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 				;
 				kk = kk + 1
 			}
-			if kk == int32(1) || int32(*(*int8)(unsafe.Pointer(zSep + uintptr(kk)))) != 0 {
+			if kk == int32(1) || int32(**(**int8)(__ccgo_up(zSep + uintptr(kk)))) != 0 {
 				fatal_error(tls, __ccgo_ts+37812, libc.VaList(bp+16, zThisTest))
 			}
 			g.FszTest = g.FszBase * integerValue(tls, zSep+uintptr(1)) / int32(100)
 			if g.FszTest <= 0 {
 				g.FszTest = int32(1)
 			}
-			*(*int8)(unsafe.Pointer(zSep)) = 0
+			**(**int8)(__ccgo_up(zSep)) = 0
 		} else {
 			g.FszTest = g.FszBase
 		}
@@ -3285,7 +3287,7 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 				}
 			}
 		}
-		if *(*int8)(unsafe.Pointer(zTSet)) != 0 {
+		if **(**int8)(__ccgo_up(zTSet)) != 0 {
 			speedtest1_begin_test(tls, int32(999), __ccgo_ts+38006, 0)
 			for int32(1) != 0 {
 				zObj = speedtest1_once(tls, __ccgo_ts+38025, 0)
@@ -3318,40 +3320,40 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	 ** have been finalized */
 	if showStats != 0 {
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, SQLITE_DBSTATUS_LOOKASIDE_USED, bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38209, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp)), *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38209, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp)), **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_HIT), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38254, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38254, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38290, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38290, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38326, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38326, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_USED), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38362, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38362, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_HIT), bp, bp+4, int32(1))
-		libc.Xprintf(tls, __ccgo_ts+38404, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38404, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_MISS), bp, bp+4, int32(1))
-		libc.Xprintf(tls, __ccgo_ts+38440, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38440, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_WRITE), bp, bp+4, int32(1))
-		libc.Xprintf(tls, __ccgo_ts+38476, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38476, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_SCHEMA_USED), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38512, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38512, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_STMT_USED), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38554, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp))))
+		libc.Xprintf(tls, __ccgo_ts+38554, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp))))
 	}
 	libsqlite3.Xsqlite3_close(tls, g.Fdb)
 	/* Global memory usage statistics printed after the database connection
 	 ** has closed.  Memory usage should be zero at this point. */
 	if showStats != 0 {
 		libsqlite3.Xsqlite3_status(tls, SQLITE_STATUS_MEMORY_USED, bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38596, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp)), *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38596, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp)), **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_COUNT), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38641, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp)), *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38641, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp)), **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_OVERFLOW), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38686, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp)), *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38686, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp)), **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_SIZE), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38731, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38731, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp + 4))))
 		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_SIZE), bp, bp+4, 0)
-		libc.Xprintf(tls, __ccgo_ts+38773, libc.VaList(bp+16, *(*int32)(unsafe.Pointer(bp + 4))))
+		libc.Xprintf(tls, __ccgo_ts+38773, libc.VaList(bp+16, **(**int32)(__ccgo_up(bp + 4))))
 	}
 	if g.FpScript != 0 {
 		libc.Xfclose(tls, g.FpScript)
@@ -3373,6 +3375,10 @@ func main() {
 func __ccgo_fp(f interface{}) uintptr {
 	type iface [2]uintptr
 	return (*iface)(unsafe.Pointer(&f))[1]
+}
+
+func __ccgo_up(n uintptr) unsafe.Pointer {
+	return unsafe.Pointer(&n)
 }
 
 var __ccgo_ts = (*reflect.StringHeader)(unsafe.Pointer(&__ccgo_ts1)).Data
