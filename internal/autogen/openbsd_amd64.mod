@@ -9,8 +9,8 @@ require (
 	modernc.org/ccgo/v4 v4.34.4
 	modernc.org/fileutil v1.4.0
 	modernc.org/libc v1.73.1
-	modernc.org/libtcl8.6 v0.17.5
-	modernc.org/libz v0.17.4
+	modernc.org/libtcl8.6 v0.18.1
+	modernc.org/libz v0.18.0
 )
 
 require (
