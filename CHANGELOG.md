@@ -1,6 +1,8 @@
 # Changelog
 
- * 2026-05-28: Add freebsd/{386,arm} support.
+ * 2026-06-13: Add netbsd/amd64 support.
+
+ * 2026-05-28: Add freebsd/{386,arm} support (not yet functional).
 
  * 2026-05-05: Upgrade to SQLite 3.53.1
 

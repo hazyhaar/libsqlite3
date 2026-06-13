@@ -27,6 +27,7 @@
 //	linux   ppc64le 3.53.2
 //	linux   riscv64 3.53.2
 //	linux   s390x   3.53.2
+//	netbsd  amd64   3.53.2
 //	windows 386     3.53.2
 //	windows amd64   3.53.2
 //	windows arm64   3.53.2
