@@ -1,4 +1,4 @@
-// Code generated for darwin/amd64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_amd64.go -I /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530200 /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530200/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for darwin/amd64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_amd64.go -I /tmp/libsqlite3/sqlite-src-3530200 /tmp/libsqlite3/sqlite-src-3530200/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build darwin && amd64
 
