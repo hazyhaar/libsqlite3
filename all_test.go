@@ -261,6 +261,12 @@ func TestTclTest(t *testing.T) {
 	case "linux/ppc64le":
 		blacklist["bigsort.test"] = struct{}{} // OOM killed on ppc64le
 		knownCFailures["snapshot_fault-4.1.1"] = struct{}{}
+	case "freebsd/arm":
+		// like-14.2 asserts a LIKE-optimization query completes in under 1s.
+		// On the emulated 32-bit arm builder the query is correct but slow
+		// (~1096ms > 1000ms threshold), so the timing assertion fails. Not a
+		// correctness issue.
+		knownCFailures["like-14.2"] = struct{}{}
 	}
 
 	if err := setMaxOpenFiles(1024); err != nil { // Avoid misc7.test hanging for a long time.
