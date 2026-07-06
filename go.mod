@@ -8,7 +8,7 @@ require (
 	golang.org/x/sys v0.46.0
 	modernc.org/ccgo/v4 v4.34.6
 	modernc.org/fileutil v1.4.0
-	modernc.org/libc v1.73.5
+	modernc.org/libc v1.74.0
 	modernc.org/libtcl8.6 v0.19.0
 	modernc.org/libz v0.18.0
 )
@@ -22,7 +22,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/tools v0.46.0 // indirect
+	golang.org/x/tools v0.47.0 // indirect
 	modernc.org/cc/v4 v4.29.0 // indirect
 	modernc.org/gc/v2 v2.6.5 // indirect
 	modernc.org/gc/v3 v3.1.4 // indirect
