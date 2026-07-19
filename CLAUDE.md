@@ -1,0 +1,193 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+`modernc.org/libsqlite3` is the **SQLite C amalgamation (currently 3.53.3) mechanically
+transpiled to pure Go** with [`ccgo/v4`](https://pkg.go.dev/modernc.org/ccgo/v4), running on
+`modernc.org/libc`. It exposes the raw C ABI only — there is no idiomatic Go API here.
+
+There is almost no hand-written logic. The real "source" of this package is the pinned SQLite
+zips plus the transpiler configuration in `generator.go`.
+
+Downstream consumers (this repo is a source donor as much as a Go package):
+- `modernc.org/sqlite` — its `make vendor` (`vendor_libs/main.go`) reads `../libsqlite3/ccgo_*.go`
+  directly from a sibling checkout, rewrites `package libsqlite3` → `package sqlite3`, and writes
+  `lib/sqlite_<goos>_<goarch>.go`. Changes here reach users only after that vendoring step.
+- `modernc.org/libsqlite_vec` — compiles against `../libsqlite3/include` and imports this module.
+
+## Do not hand-edit the generated files
+
+Machine output, each headed `DO NOT EDIT`; a regeneration silently discards any manual change:
+
+| path | what | size |
+|---|---|---|
+| `ccgo_<goos>_<goarch>.go` | the library, `package libsqlite3` | ~226k lines / ~9 MB each |
+| `internal/testfixture/ccgo_*.go` | the Tcl test harness, `package main` | ~312k lines each |
+| `mptest/ccgo_*.go`, `speedtest1/ccgo_*.go` | upstream tools, `package main` | |
+| `internal/test/**` | ~1300 files copied from upstream `test/`, wiped and re-copied every generate | |
+| `include/sqlite3.h`, `include/sqlite3ext.h` | copied out of the amalgamation | |
+
+Never open a generated file whole — grep for the symbol instead.
+
+To change generated behavior, change an **input**, not the output:
+- `generator.go` — ccgo flags, the `sed` post-passes, `versionTag`.
+- `internal/*.patch` — applied to the amalgamation's `sqlite3.c`; `internal/*.patch2` — applied to
+  the `sqlite-src` tree (`src/os_unix.c`, `src/pcache1.c`).
+- `internal/overlay/{generator,test,mptest}/` — files copied over the extracted upstream tree
+  (`config.guess`/`config.sub`; four replacement `.test` scripts; `mptest.c`).
+- or override a symbol from a **hand-written** Go file.
+
+The hand-maintained files are: `libsqlite3.go` (package doc + the Tier 1/Tier 2 platform table),
+`libsqlite3_freebsd.go` / `libsqlite3_windows.go` (libc shims for symbols ccgo can't resolve:
+`__inline_isnan*`, `__umulh`), `etc.go` (`origin`/`todo`/`trc` debug helpers),
+`rlimit.go` / `rulimit.go` / `norlimit.go` (per-platform `setMaxOpenFiles`), `all_test.go`,
+`race_test.go`, `generator.go` (`//go:build ignore`), and
+`internal/testfixture/patch_{darwin,freebsd,netbsd,windows}.go`. The darwin one is the canonical
+override example: `generator.go` `sed`-deletes `_guess_number_of_cores` from `testfixture.go` and
+`patch_darwin.go` supplies a Go replacement using `runtime.GOMAXPROCS`.
+
+## Commands
+
+```sh
+make editor              # the fast loop: gofmt -l -s -w . + go test -c + go build ./... + build generator
+make all                 # editor + golint + staticcheck (no config, defaults)
+make test                # go test -v -timeout 24h — everything; takes hours
+make tcltest             # only TestTcl*
+make extraquick          # TestTcl with the "extraquick" permutation
+make mptest              # only TestConcurrentProcesses
+make speedtest1          # go run ./speedtest1
+make build_all_targets   # cross build + test-compile every target, with -tags=none and -tags=dmesg
+make work                # go.work over sibling cc/v4, ccgo/v3, ccgo/v4, libc, libtcl8.6, libz
+make clean               # log-*, *.test, *.out, go.work*
+```
+
+`build_all_targets.sh` sweeps exactly the 20 targets in `builder.json`'s `test` matrix — keep the
+two in sync when adding or dropping a platform.
+
+Narrowing the test run (flags are defined in `all_test.go`):
+
+```sh
+go test -v -timeout 24h -run TestTclTest -suite=extraquick   # permutation from internal/test/permutations.test
+go test -v -run TestTclTest -suite="veryquick fts5*"         # extra words are passed through to permutations.test
+go test -v -run TestTclTest -start=walrestart.test -maxerror=1
+go test -v -run TestConcurrentProcesses                      # builds ./mptest, runs crash01/multiwrite01 × journal modes
+go test -v -run TestIssueSqlite173                           # re-execs itself with -race -inner
+go test -run @                                               # compile-only check (matches nothing)
+```
+
+`-suite` defaults to `full`; `-suite=""` runs `all.test` instead of `permutations.test`. Other
+flags: `-match=<glob>`, `-verbose=0|1|file`, `-q`, `-strace`, `-xtags=<build tags>` (passed to the
+`go build` of testfixture/mptest).
+
+`TestTclTest` builds `./internal/testfixture` at run time and copies the Tcl library out of
+`modernc.org/libtcl8.6/library`'s `embed.FS` into a temp `TCL_LIBRARY`.
+
+## Regeneration
+
+Prerequisites: sibling checkouts `../libc`, `../libz`, `../libtcl8.6` (the generator passes their
+`include/<goos>/<goarch>` dirs with `-I`); `unzip`, `patch`, `tclsh`, a C toolchain and autotools;
+GNU sed installed as **`gsed`** on darwin/freebsd/netbsd/openbsd; mingw
+(`x86_64-w64-mingw32-gcc`, `i686-w64-mingw32-gcc`) for the Windows cross-generation.
+
+```sh
+make generate   # host target only
+make dev        # same + GO_GENERATE_DEV=1, -tags=ccgo.dmesg,ccgo.assert, -absolute-paths
+                # -keep-object-files -positions, then greps /tmp/ccgo.log for TRC/TODO/ERRORF/FAIL/undefined
+make windows    # cross-generate windows/{amd64,arm64} from linux/amd64 (ccgo_windows.go)
+make windows_386
+```
+
+`generator.go` runs two phases:
+1. **amalgamation zip** → apply `internal/*.patch` + the `sed` fixes to `sqlite3.c` → ccgo →
+   `sed` identifier renames → `ccgo_<goos>_<goarch>.go`, `include/sqlite3.h`, `include/sqlite3ext.h`.
+2. **sqlite-src zip** → apply `internal/*.patch2` + overlay → `./configure` →
+   `ccgo -exec make testfixture` → `internal/testfixture/ccgo_*.go`; then transpile `speedtest1.c`
+   and `mptest.c`, copy `mptest/*.test`, and refresh `internal/test` from upstream `test/` plus
+   `internal/overlay/test`.
+
+On linux/amd64 `make generate` **also** cross-generates the three Windows targets afterwards
+(deferred `make windows windows_386`) unless `GO_GENERATE_NOWIN=1`, and writes the
+`internal/autogen/windows_*.mod` snapshots.
+
+Environment: `GO_GENERATE_DIR` (work dir; the Makefile uses `/tmp/libsqlite3`), `GO_GENERATE_DEV`,
+`GO_GENERATE_WIN`, `GO_GENERATE_WIN32`, `GO_GENERATE_NOWIN`, `GO_GENERATE_TEST` (builds
+`make fulltestonly` instead of `testfixture`), `GO_GENERATE_KEEP`, `TARGET_GOOS`/`TARGET_GOARCH`,
+`MODERNC_ORG_SQLITE_WITH_TCLSH`.
+
+### Version bumps — what must stay in sync
+
+- **SQLite**: `versionTag` in `generator.go`, `ZIP`/`ZIP2`/`URL`/`URL2` in the `Makefile`, the
+  `download` URLs in `builder.json`, and the version column of the platform table in
+  `libsqlite3.go`'s doc comment.
+- **`internal/*.patch{,2}` are ed-style diffs with absolute line numbers**
+  (`55620c55620`), not context diffs. They break on any upstream line-number shift, so every SQLite
+  bump means regenerating them against the new sources.
+- **libc / libz / libtcl8.6**: hard-coded in the two `go get` lines inside `generator.go` and must
+  match `go.mod` (cf. the `generator.go: update libc version` commits).
+
+## Per-target generation and the builder farm
+
+Every target except Windows must be generated **on a matching machine**, which is why the history
+is a stream of `<host> auto generate` commits (`nuc64`, `pi64`, `pi32`, `darwin-m1`, `s390x`,
+`riscv64`, `loong64b`, …). That fleet is driven by `builder.json` — the `autogen` / `test` /
+`autotag` target regexes and the zips to download — and reports to
+<https://modern-c.appspot.com/-/builder/?importpath=modernc.org%2flibsqlite3>.
+
+`internal/autogen/<goos>_<goarch>.mod` is a snapshot of `go.mod` as of that target's last
+successful generation. The farm regenerates a target when the snapshot differs from `go.mod`; so
+bumping a dependency triggers a sweep implicitly, and
+`for f in internal/autogen/*.mod; do echo > $f; done` forces one explicitly.
+
+Tier 1 vs Tier 2 is documented in `libsqlite3.go`: openbsd/{amd64,arm64} is Tier 2, which
+guarantees only that the package builds and that some tests pass — bugs there don't block a
+release, and the package doc warns against production use.
+
+## Generated API conventions
+
+Set by ccgo's `--prefix-*` flags plus the `sed` renames in `generator.go`:
+
+- **Functions**: ccgo emits `x_sqlite3_open`, a `sed` pass rewrites `x_` → `X`, giving
+  `Xsqlite3_open`, `Xsqlite3_prepare_v2`, … (~367 exported).
+- **Macros keep their C names** as plain Go constants: `SQLITE_OK`, `SQLITE_OPEN_READWRITE`
+  (`-eval-all-macros`, no `--prefix-macro` in phase 1). This is the API `modernc.org/sqlite`'s
+  `lib` package re-exports.
+- **Types** `T`-prefixed (`Tsqlite3`, `Tsqlite3_stmt`), **struct fields** `F`-prefixed,
+  statics/internals/enums `_`-prefixed (`_sqlite3MutexInit`).
+- Every function takes `tls *libc.TLS` first; all pointers are `uintptr`.
+- The `package main` programs (`internal/testfixture`, `mptest`, `speedtest1`) compile `sqlite3.c`
+  in themselves and therefore keep the raw `x_` prefixes and `m_`-prefixed macros — the phase-1
+  renames don't apply to them.
+- Build constraints are `//go:build <goos> && <goarch>`, except `ccgo_windows.go`, which is
+  `windows && (amd64 || arm64)`.
+
+## Race/threading fixes baked into generation
+
+Deliberate and load-bearing — don't "clean them up" out of `generator.go` or the patches:
+
+- `_sqlite3MutexInit` is wrapped in a package-level `sync.Mutex` (hence ccgo's `-import=sync`).
+- `sqlite3Config.bUseLongDouble = hasHighPrecisionDouble(rc)` is disabled: there is no long double
+  here and the probe is C-racy (<https://gitlab.com/cznic/sqlite/-/issues/180>).
+- The first `int isInit` becomes `volatile int isInit`; `bUnderPressure` and `randomnessPid` get the
+  same treatment via `internal/issue1.patch{,2}` and `internal/sqlite_issue173.patch{,2}`.
+- The `#if (defined(__GNUC__) || defined(__clang__))` intrinsics block is disabled (`#if 0 && …`) in
+  both `sqlite3.c` and `src/util.c`.
+- `-DSQLITE_THREADSAFE=1` only on linux; every other target gets `-DSQLITE_MUTEX_NOOP`.
+- `-DLONGDOUBLE_TYPE=double` plus ccgo's `-mlong-double-64`.
+- `race_test.go`'s `TestIssueSqlite173` is the regression guard for the `unixRandomness` race; it
+  re-runs itself under `-race` and tolerates "`-race` is not supported" / "unsupported VMA range".
+
+## Known-failure bookkeeping
+
+Before chasing a Tcl failure, check the tables at the top of `all_test.go`:
+
+- `expectedFailures` — `dbstatus-4.*`, `malloc5-6.2.*`, `values-11.*`; memory accounting differs
+  from C because escaped locals share the heap and TLS stacks live until `TLS.Close`. Plus 18
+  `dbstatus-2.*` entries added for windows in `init()`.
+- `knownCFailures` — fails in upstream C too: `snapshot_fault-4.1.1` (linux/ppc64le), `like-14.2`
+  (freebsd/arm — a 1 s timing assertion on an emulated builder).
+- per-target blacklists in `TestTclTest` — `bigsort.test` (OOM/hang on linux/{arm64,loong64,riscv64,ppc64le}),
+  `symlink2.test`/`readonly.test`/`snapshot3.test` on windows; `TestConcurrentProcesses` is skipped
+  on linux/s390x (VM too slow).
+- `setMaxOpenFiles(1024)` runs before the Tcl suite to keep `misc7.test` from hanging.
