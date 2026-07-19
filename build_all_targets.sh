@@ -11,9 +11,17 @@ do
 	GOOS=darwin GOARCH=arm64 go build -tags=$tag -v ./...
 	GOOS=darwin GOARCH=arm64 go test -tags=$tag -c -o /dev/null
 
+	echo "GOOS=freebsd GOARCH=386"
+	GOOS=freebsd GOARCH=386 go build -tags=$tag -v ./...
+	GOOS=freebsd GOARCH=386 go test -tags=$tag -c -o /dev/null
+
 	echo "GOOS=freebsd GOARCH=amd64"
 	GOOS=freebsd GOARCH=amd64 go build -tags=$tag -v ./...
 	GOOS=freebsd GOARCH=amd64 go test -tags=$tag -c -o /dev/null
+
+	echo "GOOS=freebsd GOARCH=arm"
+	GOOS=freebsd GOARCH=arm go build -tags=$tag -v ./...
+	GOOS=freebsd GOARCH=arm go test -tags=$tag -c -o /dev/null
 
 	echo "GOOS=freebsd GOARCH=arm64"
 	GOOS=freebsd GOARCH=arm64 go build -tags=$tag -v ./...
@@ -50,6 +58,10 @@ do
 	echo "GOOS=linux GOARCH=s390x"
 	GOOS=linux GOARCH=s390x go build -tags=$tag -v ./...
 	GOOS=linux GOARCH=s390x go test -tags=$tag -c -o /dev/null
+
+	echo "GOOS=netbsd GOARCH=amd64"
+	GOOS=netbsd GOARCH=amd64 go build -tags=$tag -v ./...
+	GOOS=netbsd GOARCH=amd64 go test -tags=$tag -c -o /dev/null
 
 	echo "GOOS=openbsd GOARCH=amd64"
 	GOOS=openbsd GOARCH=amd64 go build -tags=$tag -v ./...
