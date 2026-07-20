@@ -34,7 +34,7 @@ Never open a generated file whole — grep for the symbol instead.
 To change generated behavior, change an **input**, not the output:
 - `generator.go` — ccgo flags, the `sed` post-passes, `versionTag`.
 - `internal/*.patch` — applied to the amalgamation's `sqlite3.c`; `internal/*.patch2` — applied to
-  the `sqlite-src` tree (`src/os_unix.c`, `src/pcache1.c`).
+  the `sqlite-src` tree (`src/os_unix.c`, `src/pcache1.c`, `src/pager.c`).
 - `internal/overlay/{generator,test,mptest}/` — files copied over the extracted upstream tree
   (`config.guess`/`config.sub`; four replacement `.test` scripts; `mptest.c`).
 - or override a symbol from a **hand-written** Go file.
@@ -161,6 +161,16 @@ Set by ccgo's `--prefix-*` flags plus the `sed` renames in `generator.go`:
   renames don't apply to them.
 - Build constraints are `//go:build <goos> && <goarch>`, except `ccgo_windows.go`, which is
   `windows && (amd64 || arm64)`.
+
+## Upstream fixes baked into generation
+
+`internal/sqlite_superjournal.patch{,2}` carries a fix for an upstream SQLite 3.53.3 regression:
+`readSuperJournal()` returns a non-NULL pointer to an *empty* name when a crash zeroed the
+super-journal name (its byte-sum checksum still validates), and `pager_playback()` tests the
+pointer rather than `zSuper[0]`, so it does `sqlite3OsAccess(pVfs, "", …)` → ENOENT and deletes
+the hot journal without rolling it back, leaving the database corrupted. Only reachable via a
+crash during a multi-database (ATTACH) transaction; it made `crash.test` fail ~2% of runs on
+every platform. Drop the patch once upstream ships its own fix.
 
 ## Race/threading fixes baked into generation
 

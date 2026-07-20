@@ -1,5 +1,9 @@
 # Changelog
 
+ * 2026-07-20: Patch an upstream SQLite 3.53.3 regression where a hot rollback journal was
+   deleted without being played back, leaving the database corrupted, after a crash during a
+   multi-database (ATTACH) transaction. See internal/sqlite_superjournal.patch{,2}.
+
  * 2026-06-13: Add netbsd/amd64 support.
 
  * 2026-05-28: Add freebsd/{386,arm} support (not yet functional).

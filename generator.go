@@ -139,6 +139,15 @@ func main() {
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_issue173.patch"))
 	// https://gitlab.com/cznic/libsqlite3/-/issues/1
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "issue1.patch"))
+	// Upstream SQLite 3.53.3 regression: readSuperJournal() was changed to return a
+	// heap buffer via char** and pager_playback() now tests the pointer instead of
+	// zSuper[0]. A crash that zeroes the super-journal name and its checksum, but
+	// leaves the name length and the trailing magic intact, then yields a non-NULL
+	// pointer to an empty string, so pager_playback() does sqlite3OsAccess(pVfs, "",
+	// SQLITE_ACCESS_EXISTS) -> ENOENT -> the hot journal is deleted without being
+	// played back and the database is left corrupted. Restore the pre-3.53.3
+	// behaviour of reporting a (nul) super-journal name.
+	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_superjournal.patch"))
 
 	// https://gitlab.com/cznic/sqlite/-/issues/180
 	// We do not have long double, the field is already zero, skip the C-racy test altogether.
@@ -312,6 +321,8 @@ func main() {
 	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "os_unix.c"), filepath.Join("internal", "sqlite_issue173.patch2"))
 	// https://gitlab.com/cznic/libsqlite3/-/issues/1
 	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "pcache1.c"), filepath.Join("internal", "issue1.patch2"))
+	// See the comment at sqlite_superjournal.patch above.
+	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "pager.c"), filepath.Join("internal", "sqlite_superjournal.patch2"))
 	mustCopyDir(makeRoot, filepath.Join("internal", "overlay", "generator"), nil, false)
 	fixWin(tempDir)
 	util.MustShell(true, nil, sed, "-i", `s/#if (defined(__GNUC__) || defined(__clang__)) \\/#if 0 \&\& (defined(__GNUC__) || defined(__clang__)) \\/`, filepath.Join(libRoot, "src", "util.c"))
