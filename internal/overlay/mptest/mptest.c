@@ -90,8 +90,17 @@ static struct Global {
   int bSync;             /* Call fsync() */
 } g;
 
-/* Default timeout */
-#define DEFAULT_TIMEOUT 10000
+/* Default timeout.
+**
+** Bumped from the upstream 10000 to work around a ccgo constant-folding bug:
+** ccgo folds every read of the runtime-assigned field g.defaultTimeout down to
+** this constant (see ../../../HANDOFF-ccgo-mptest-timeout.md), so "--timeout N"
+** is ignored and the busy handler (g.iTimeout) plus spawned client processes are
+** pinned at this value.  On slow/emulated builders (openbsd/arm64 under QEMU)
+** 10s is too short: mptest aborts with "database is locked" / "timeout after
+** 10000ms" even though the harness passed --timeout 120000.  Match that intent.
+** Revert to 10000 once ccgo honors the assignment. */
+#define DEFAULT_TIMEOUT 120000
 
 /*
 ** Print a message adding zPrefix[] to the beginning of every line.
@@ -1120,7 +1129,11 @@ static void runScript(
     ** TIMEOUT milliseconds (default 10,000)
     */
     if( strcmp(zCmd, "wait")==0 && iClient==0 ){
-      int iTimeout = nArg>=2 ? atoi(azArg[1]) : 10000;
+      /* The bare "--wait all" barrier default was a literal 10000 ms, separate
+      ** from --timeout.  On slow builders recovery + integrity_check across the
+      ** clients exceeds 10s, giving a false "timeout waiting for all clients".
+      ** Use DEFAULT_TIMEOUT (see the note at its definition). */
+      int iTimeout = nArg>=2 ? atoi(azArg[1]) : DEFAULT_TIMEOUT;
       sqlite3_snprintf(sizeof(zError),zError,"line %d of %s\n",
                        prevLine, zFilename);
       waitForClient(atoi(azArg[0]), iTimeout, zError);
