@@ -1,11 +1,13 @@
 # Changelog
 
- * 2026-07-21: mptest: raise the busy/barrier timeouts so slow builders (openbsd/arm64 under
-   QEMU) stop failing TestConcurrentProcesses with "database is locked" / "timeout waiting for
-   all clients". The transpiled mptest ignores --timeout because ccgo constant-folds
-   g.defaultTimeout; bump DEFAULT_TIMEOUT and the --wait default to match the intended 120s. See
-   internal/overlay/mptest/mptest.c and HANDOFF-ccgo-mptest-timeout.md. Takes effect on the next
-   per-target regeneration.
+ * 2026-07-21: mptest: fix TestConcurrentProcesses on slow builders (openbsd/arm64 under QEMU),
+   which failed with "database is locked" / "timeout waiting for all clients". Root cause: the
+   generator transpiled the *upstream* mptest.c, which hardwires the busy timeout to the
+   DEFAULT_TIMEOUT constant and never forwards --timeout to spawned clients, so --timeout 120000
+   was ignored and 10s was too short. (Not a ccgo bug — ccgo transpiles both sources faithfully.)
+   Wire internal/overlay/mptest/mptest.c — which makes the timeout the runtime g.defaultTimeout and
+   forwards --timeout — into generation (generator.go), and point the --wait barrier default at
+   g.defaultTimeout. Takes effect on the next per-target regeneration.
 
  * 2026-07-20: Patch an upstream SQLite 3.53.3 regression where a hot rollback journal was
    deleted without being played back, leaving the database corrupted, after a crash during a

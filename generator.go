@@ -585,6 +585,15 @@ go work use \
 		util.MustShell(true, nil, sed, "-i.bak", `s/\&_stderr\>/libc.Xstderr/g`, result)
 	}
 	os.Mkdir("mptest", 0770)
+	// Overlay our patched mptest harness over the upstream one before transpiling.
+	// Upstream hardwires the busy timeout to the DEFAULT_TIMEOUT constant; the
+	// overlay makes it a runtime-assigned field (g.defaultTimeout) so "--timeout N"
+	// is honored and slow/emulated builders don't spuriously abort. See
+	// internal/overlay/mptest/mptest.c. NOTE: this is NOT a ccgo constant-folding
+	// bug — ccgo transpiles the upstream source (bare constant) and the overlay
+	// source (runtime field) both correctly; the shipped code was simply generated
+	// from upstream because this overlay was never wired in.
+	mustCopyFile(filepath.Join(makeRoot, "mptest", "mptest.c"), filepath.Join("internal", "overlay", "mptest", "mptest.c"), nil)
 	util.MustShell(true, nil, sed, "-i", `s/strcmp(sqlite3_sourceid()/0 \&\& strcmp(sqlite3_sourceid()/`, filepath.Join(makeRoot, "mptest", "mptest.c"))
 	switch {
 	case win:
