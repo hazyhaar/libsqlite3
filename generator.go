@@ -140,10 +140,10 @@ func main() {
 	// https://gitlab.com/cznic/libsqlite3/-/issues/1
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "issue1.patch"))
 
-	// https://gitlab.com/cznic/sqlite/-/issues/180
-	// We do not have long double, the field is already zero, skip the C-racy test altogether.
-	util.MustShell(true, nil, sed, "-i", `s/sqlite3Config.bUseLongDouble = hasHighPrecisionDouble(rc);/\/\/ disabled/`, filepath.Join(libRoot, "sqlite3.c"))
-	// Another C-race, enforce atomic access.
+	// C-race, enforce atomic access. NB: the 0,/.../ address matches nothing in
+	// current SQLite, so this deliberately applies to every "int isInit"
+	// declaration, not just the first - each becomes a libc.AtomicLoadPInt32 in
+	// the generated Go. See the note in CLAUDE.md before narrowing it.
 	util.MustShell(true, nil, sed, "-i", `0,/int isInit;*True after/{s/int isInit/volatile int isInit/}`, filepath.Join(libRoot, "sqlite3.c"))
 
 	util.MustShell(true, nil, sed, "-i", `s/#if (defined(__GNUC__) || defined(__clang__)) \\/#if 0 \&\& (defined(__GNUC__) || defined(__clang__)) \\/`, filepath.Join(libRoot, "sqlite3.c"))

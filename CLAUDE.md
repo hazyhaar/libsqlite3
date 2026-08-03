@@ -180,10 +180,14 @@ regression test for it is `test/crash9.test`, new in 3.53.4 and part of the `ful
 Deliberate and load-bearing — don't "clean them up" out of `generator.go` or the patches:
 
 - `_sqlite3MutexInit` is wrapped in a package-level `sync.Mutex` (hence ccgo's `-import=sync`).
-- `sqlite3Config.bUseLongDouble = hasHighPrecisionDouble(rc)` is disabled: there is no long double
-  here and the probe is C-racy (<https://gitlab.com/cznic/sqlite/-/issues/180>).
-- The first `int isInit` becomes `volatile int isInit`; `bUnderPressure` and `randomnessPid` get the
-  same treatment via `internal/issue1.patch{,2}` and `internal/sqlite_issue173.patch{,2}`.
+- **Every** `int isInit` becomes `volatile int isInit` — ccgo turns a `volatile` read into
+  `libc.AtomicLoadPInt32`, so this is real codegen, not a cosmetic marker. The `sed` is written
+  `0,/int isInit;*True after/{…}` as if to hit only the first declaration, but that address regex
+  matches nothing (`;*` is zero-or-more semicolons, and the real line has ` /* True after…` in
+  between), so the range runs to EOF and all four declarations are covered. Narrowing it to the
+  first would *remove* atomic loads from the other three — a behaviour change needing a full
+  regeneration sweep, so leave it unless you mean it. `bUnderPressure` and `randomnessPid` get the
+  same `volatile` treatment via `internal/issue1.patch{,2}` and `internal/sqlite_issue173.patch{,2}`.
 - The `#if (defined(__GNUC__) || defined(__clang__))` intrinsics block is disabled (`#if 0 && …`) in
   both `sqlite3.c` and `src/util.c`.
 - `-DSQLITE_THREADSAFE=1` only on linux; every other target gets `-DSQLITE_MUTEX_NOOP`.
