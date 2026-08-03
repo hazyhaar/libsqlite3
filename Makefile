@@ -9,8 +9,8 @@ SHELL=/bin/bash -o pipefail
 GREP = 'TRC\|TODO\|ERRORF\|FAIL\|undefined:'
 
 DIR = /tmp/libsqlite3
-ZIP = sqlite-amalgamation-3530300.zip
-ZIP2 = sqlite-src-3530300.zip
+ZIP = sqlite-amalgamation-3530400.zip
+ZIP2 = sqlite-src-3530400.zip
 URL = https://www.sqlite.org/2026/$(ZIP)
 URL2 = https://www.sqlite.org/2026/$(ZIP2)
 

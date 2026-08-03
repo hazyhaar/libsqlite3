@@ -4,8 +4,8 @@
 	"autoupdate": "<none>",
 	"download": [
 		{"re": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm$)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|netbsd/amd64|openbsd/(amd64|arm64)", "files": [
-			"https://www.sqlite.org/2026/sqlite-amalgamation-3530300.zip",
-			"https://www.sqlite.org/2026/sqlite-src-3530300.zip"
+			"https://www.sqlite.org/2026/sqlite-amalgamation-3530400.zip",
+			"https://www.sqlite.org/2026/sqlite-src-3530400.zip"
 		]}
 	],
 	"test": "darwin/(amd64|arm64)|freebsd/(amd64|arm64|386|arm$)|linux/(386|amd64|arm$|arm64|loong64|ppc64le|riscv64|s390x)|netbsd/amd64|openbsd/(amd64|arm64)|windows/(amd64|arm64|386)"

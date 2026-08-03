@@ -1,5 +1,13 @@
 # Changelog
 
+ * 2026-08-03: Upgrade to SQLite 3.53.4. It carries upstream's own fix for the super-journal
+   rollback corruption reported from here on 2026-07-20
+   (https://sqlite.org/forum/info/2026-07-20T18:27:00Z): check-in bf70dadc2d455844 applies the
+   same one-line `zOut[0]==0` test we had been carrying, and `src/pager.c` has no other change
+   between 3.53.3 and 3.53.4. internal/sqlite_superjournal.patch{,2} is therefore dropped.
+   Upstream also added test/crash9.test as the regression test for it, which runs as part of the
+   default `full` suite.
+
  * 2026-07-21: mptest: fix TestConcurrentProcesses on slow builders (openbsd/arm64 under QEMU),
    which failed with "database is locked" / "timeout waiting for all clients". Root cause: the
    generator transpiled the *upstream* mptest.c, which hardwires the busy timeout to the

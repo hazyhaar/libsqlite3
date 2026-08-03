@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`modernc.org/libsqlite3` is the **SQLite C amalgamation (currently 3.53.3) mechanically
+`modernc.org/libsqlite3` is the **SQLite C amalgamation (currently 3.53.4) mechanically
 transpiled to pure Go** with [`ccgo/v4`](https://pkg.go.dev/modernc.org/ccgo/v4), running on
 `modernc.org/libc`. It exposes the raw C ABI only — there is no idiomatic Go API here.
 
@@ -34,7 +34,7 @@ Never open a generated file whole — grep for the symbol instead.
 To change generated behavior, change an **input**, not the output:
 - `generator.go` — ccgo flags, the `sed` post-passes, `versionTag`.
 - `internal/*.patch` — applied to the amalgamation's `sqlite3.c`; `internal/*.patch2` — applied to
-  the `sqlite-src` tree (`src/os_unix.c`, `src/pcache1.c`, `src/pager.c`).
+  the `sqlite-src` tree (`src/os_unix.c`, `src/pcache1.c`).
 - `internal/overlay/{generator,test,mptest}/` — files copied over the extracted upstream tree
   (`config.guess`/`config.sub`; four replacement `.test` scripts; `mptest.c`).
 - or override a symbol from a **hand-written** Go file.
@@ -164,13 +164,16 @@ Set by ccgo's `--prefix-*` flags plus the `sed` renames in `generator.go`:
 
 ## Upstream fixes baked into generation
 
-`internal/sqlite_superjournal.patch{,2}` carries a fix for an upstream SQLite 3.53.3 regression:
-`readSuperJournal()` returns a non-NULL pointer to an *empty* name when a crash zeroed the
-super-journal name (its byte-sum checksum still validates), and `pager_playback()` tests the
-pointer rather than `zSuper[0]`, so it does `sqlite3OsAccess(pVfs, "", …)` → ENOENT and deletes
-the hot journal without rolling it back, leaving the database corrupted. Only reachable via a
-crash during a multi-database (ATTACH) transaction; it made `crash.test` fail ~2% of runs on
-every platform. Drop the patch once upstream ships its own fix.
+None at present. Historical note, because it explains older builder logs: SQLite 3.53.3 had a
+super-journal regression — `readSuperJournal()` returned a non-NULL pointer to an *empty* name
+when a crash zeroed the name (its byte-sum checksum still validates) and `pager_playback()`
+tested the pointer rather than `zSuper[0]`, so the hot journal was deleted without being rolled
+back and the database was left corrupted. It made `crash.test` fail ~2% of runs on every
+platform ("file is not a database" / "database disk image is malformed"). Reported from here
+(<https://sqlite.org/forum/info/2026-07-20T18:27:00Z>) and carried as
+`internal/sqlite_superjournal.patch{,2}` until **3.53.4 shipped the identical one-line fix**
+upstream (check-in `bf70dadc2d455844`), which is when the patch was dropped. Upstream's
+regression test for it is `test/crash9.test`, new in 3.53.4 and part of the `full` suite.
 
 ## Race/threading fixes baked into generation
 

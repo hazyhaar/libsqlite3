@@ -1,4 +1,4 @@
-317c317
+318c318
 < static pid_t randomnessPid = 0;
 ---
 > static volatile pid_t randomnessPid = 0;

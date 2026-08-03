@@ -1,4 +1,0 @@
-60973c60973
-<     if( rc!=SQLITE_OK || cksum ){
----
->     if( rc!=SQLITE_OK || cksum || zOut[0]==0 ){

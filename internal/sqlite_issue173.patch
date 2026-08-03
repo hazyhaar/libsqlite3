@@ -1,8 +1,8 @@
-38284c38284
+40515c40515
 < static pid_t randomnessPid = 0;
 ---
 > static volatile pid_t randomnessPid = 0;
-44789,44791c44789,44792
+47323,47325c47323,47326
 <       memcpy(&zBuf[sizeof(t)], &randomnessPid, sizeof(randomnessPid));
 <       assert( sizeof(t)+sizeof(randomnessPid)<=(size_t)nBuf );
 <       nBuf = sizeof(t) + sizeof(randomnessPid);
@@ -11,7 +11,7 @@
 >       memcpy(&zBuf[sizeof(t)], &rp, sizeof(rp));
 >       assert( sizeof(t)+sizeof(rp)<=(size_t)nBuf );
 >       nBuf = sizeof(t) + sizeof(rp);
-65134c65135
+68161c68162
 < #include <Windows.h>
 ---
 > #include <windows.h>
