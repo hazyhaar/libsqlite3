@@ -1,4 +1,4 @@
-// Code generated for freebsd/amd64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_freebsd_amd64.go -I /tmp/libsqlite3/sqlite-src-3530300 /tmp/libsqlite3/sqlite-src-3530300/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for freebsd/amd64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_freebsd_amd64.go -I /tmp/libsqlite3/sqlite-src-3530400 /tmp/libsqlite3/sqlite-src-3530400/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build freebsd && amd64
 
