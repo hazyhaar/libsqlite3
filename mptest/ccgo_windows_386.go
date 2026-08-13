@@ -1782,7 +1782,7 @@ func usage(tls *libc.TLS, argv0 uintptr) {
 _3:
 	;
 	v2 = __ccgo_ts + 1749
-	__local_argv = bp
+	__local_argv = bp + 32
 	__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(2)), v2, __local_argv)
 	_ = __local_argv
 	_ = __retval
@@ -1796,8 +1796,8 @@ _5:
 //
 //	/* Report on unrecognized arguments */
 func unrecognizedArguments(tls *libc.TLS, argv0 uintptr, nArg int32, azArg uintptr) {
-	bp := tls.Alloc(64)
-	defer tls.Free(64)
+	bp := tls.Alloc(80)
+	defer tls.Free(80)
 	var __local_argv __builtin_va_list
 	var __retval, i int32
 	var v1 uintptr
@@ -1817,8 +1817,8 @@ _2:
 			break
 		}
 		v1 = __ccgo_ts + 2349
-		libc.VaList(bp, **(**uintptr)(__ccgo_up(azArg + uintptr(i)*4)))
-		__local_argv = bp
+		libc.VaList(bp+32, **(**uintptr)(__ccgo_up(azArg + uintptr(i)*4)))
+		__local_argv = bp + 32
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(2)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -1831,7 +1831,7 @@ _2:
 		i = i + 1
 	}
 	v1 = __ccgo_ts + 2353
-	__local_argv = bp
+	__local_argv = bp + 64
 	__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(2)), v1, __local_argv)
 	_ = __local_argv
 	_ = __retval
@@ -1842,16 +1842,16 @@ _7:
 }
 
 func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
-	bp := tls.Alloc(336)
-	defer tls.Free(336)
+	bp := tls.Alloc(384)
+	defer tls.Free(384)
 	var __local_argv, __local_argv1 __builtin_va_list
 	var __retval, __retval1, i, iClient, iRep, iTimeout, iTmout, nRep, nTry, openFlags, rc, v16 int32
 	var pStmt, zCOption, zClient, zJMode, zNRep, zTmout, zTrace, v1, v3 uintptr
 	var v17 bool
-	var _ /* n at bp+288 */ int32
-	var _ /* taskId at bp+296 */ int32
-	var _ /* zScript at bp+292 */ uintptr
-	var _ /* zTaskName at bp+300 */ uintptr
+	var _ /* n at bp+336 */ int32
+	var _ /* taskId at bp+344 */ int32
+	var _ /* zScript at bp+340 */ uintptr
+	var _ /* zTaskName at bp+348 */ uintptr
 	_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ = __local_argv, __local_argv1, __retval, __retval1, i, iClient, iRep, iTimeout, iTmout, nRep, nTry, openFlags, pStmt, rc, zCOption, zClient, zJMode, zNRep, zTmout, zTrace, v1, v16, v17, v3
 	openFlags = int32(SQLITE_OPEN_READWRITE)
 	nRep = int32(1)
@@ -1877,33 +1877,33 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 		;
 		libc.Xexit(tls, int32(1))
 	}
-	**(**int32)(__ccgo_up(bp + 288)) = argc - int32(2)
-	libsqlite3.Xsqlite3_snprintf(tls, int32(32), uintptr(unsafe.Pointer(&g))+32, __ccgo_ts+2507, libc.VaList(bp+312, int32(libc.XGetCurrentProcessId(tls))))
-	zJMode = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2519, int32(1))
-	zNRep = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2531, int32(1))
+	**(**int32)(__ccgo_up(bp + 336)) = argc - int32(2)
+	libsqlite3.Xsqlite3_snprintf(tls, int32(32), uintptr(unsafe.Pointer(&g))+32, __ccgo_ts+2507, libc.VaList(bp+360, int32(libc.XGetCurrentProcessId(tls))))
+	zJMode = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2519, int32(1))
+	zNRep = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2531, int32(1))
 	if zNRep != 0 {
 		nRep = libc.Xatoi(tls, zNRep)
 	}
 	if nRep < int32(1) {
 		nRep = int32(1)
 	}
-	g.FzVfs = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2538, int32(1))
-	zClient = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2542, int32(1))
-	g.FzErrLog = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2549, int32(1))
-	g.FzLog = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2556, int32(1))
-	zTrace = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2560, int32(1))
+	g.FzVfs = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2538, int32(1))
+	zClient = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2542, int32(1))
+	g.FzErrLog = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2549, int32(1))
+	g.FzLog = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2556, int32(1))
+	zTrace = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2560, int32(1))
 	if zTrace != 0 {
 		g.FiTrace = libc.Xatoi(tls, zTrace)
 	}
-	if findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2566, 0) != uintptr(0) {
+	if findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2566, 0) != uintptr(0) {
 		g.FiTrace = 0
 	}
-	zTmout = findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2572, int32(1))
+	zTmout = findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2572, int32(1))
 	if zTmout != 0 {
 		iTmout = libc.Xatoi(tls, zTmout)
 	}
-	g.FbSqlTrace = libc.BoolInt32(findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2580, 0) != uintptr(0))
-	g.FbSync = libc.BoolInt32(findOption(tls, argv+uintptr(2)*4, bp+288, __ccgo_ts+2589, 0) != uintptr(0))
+	g.FbSqlTrace = libc.BoolInt32(findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2580, 0) != uintptr(0))
+	g.FbSync = libc.BoolInt32(findOption(tls, argv+uintptr(2)*4, bp+336, __ccgo_ts+2589, 0) != uintptr(0))
 	if g.FzErrLog != 0 {
 		g.FpErrLog = libc.Xfopen(tls, g.FzErrLog, __ccgo_ts+2594)
 	} else {
@@ -1914,19 +1914,19 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	} else {
 		g.FpLog = libc.X__acrt_iob_func(tls, uint32(1))
 	}
-	libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_LOG), libc.VaList(bp+312, __ccgo_fp(sqlErrorCallback), 0))
+	libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_LOG), libc.VaList(bp+360, __ccgo_fp(sqlErrorCallback), 0))
 	if zClient != 0 {
 		iClient = libc.Xatoi(tls, zClient)
 		if iClient < int32(1) {
-			fatalError(tls, __ccgo_ts+2596, libc.VaList(bp+312, iClient))
+			fatalError(tls, __ccgo_ts+2596, libc.VaList(bp+360, iClient))
 		}
-		libsqlite3.Xsqlite3_snprintf(tls, int32(32), uintptr(unsafe.Pointer(&g))+32, __ccgo_ts+2623, libc.VaList(bp+312, int32(libc.XGetCurrentProcessId(tls)), iClient))
+		libsqlite3.Xsqlite3_snprintf(tls, int32(32), uintptr(unsafe.Pointer(&g))+32, __ccgo_ts+2623, libc.VaList(bp+360, int32(libc.XGetCurrentProcessId(tls)), iClient))
 	} else {
 		nTry = 0
 		if g.FiTrace > 0 {
 			v1 = __ccgo_ts + 2639
-			libc.VaList(bp, **(**uintptr)(__ccgo_up(argv)))
-			__local_argv1 = bp
+			libc.VaList(bp+32, **(**uintptr)(__ccgo_up(argv)))
+			__local_argv1 = bp + 32
 			__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 			_ = __local_argv1
 			_ = __retval1
@@ -1939,8 +1939,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 					break
 				}
 				v1 = __ccgo_ts + 2349
-				libc.VaList(bp, **(**uintptr)(__ccgo_up(argv + uintptr(i)*4)))
-				__local_argv1 = bp
+				libc.VaList(bp+64, **(**uintptr)(__ccgo_up(argv + uintptr(i)*4)))
+				__local_argv1 = bp + 64
 				__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 				_ = __local_argv1
 				_ = __retval1
@@ -1953,7 +1953,7 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 				i = i + 1
 			}
 			v1 = __ccgo_ts + 2353
-			__local_argv1 = bp
+			__local_argv1 = bp + 96
 			__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 			_ = __local_argv1
 			_ = __retval1
@@ -1961,7 +1961,7 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 		_9:
 			;
 			v1 = __ccgo_ts + 2649
-			__local_argv1 = bp
+			__local_argv1 = bp + 112
 			__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 			_ = __local_argv1
 			_ = __retval1
@@ -1976,8 +1976,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 					break
 				}
 				v3 = __ccgo_ts + 2754
-				libc.VaList(bp, zCOption)
-				__local_argv1 = bp
+				libc.VaList(bp+128, zCOption)
+				__local_argv1 = bp + 128
 				__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v3, __local_argv1)
 				_ = __local_argv1
 				_ = __retval1
@@ -2000,8 +2000,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 					v1 = __ccgo_ts + 1116
 				}
 				v3 = __ccgo_ts + 2774
-				libc.VaList(bp, v1, g.FzDbFile)
-				__local_argv1 = bp
+				libc.VaList(bp+160, v1, g.FzDbFile)
+				__local_argv1 = bp + 160
 				__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v3, __local_argv1)
 				_ = __local_argv1
 				_ = __retval1
@@ -2024,13 +2024,13 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 			}
 		}
 		if rc != 0 {
-			fatalError(tls, __ccgo_ts+2803, libc.VaList(bp+312, g.FzDbFile, nTry))
+			fatalError(tls, __ccgo_ts+2803, libc.VaList(bp+360, g.FzDbFile, nTry))
 		}
 		openFlags = openFlags | int32(SQLITE_OPEN_CREATE)
 	}
 	rc = libsqlite3.Xsqlite3_open_v2(tls, g.FzDbFile, uintptr(unsafe.Pointer(&g))+12, openFlags, g.FzVfs)
 	if rc != 0 {
-		fatalError(tls, __ccgo_ts+2844, libc.VaList(bp+312, g.FzDbFile))
+		fatalError(tls, __ccgo_ts+2844, libc.VaList(bp+360, g.FzDbFile))
 	}
 	if iTmout > 0 {
 		libsqlite3.Xsqlite3_busy_timeout(tls, g.Fdb, iTmout)
@@ -2038,8 +2038,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	if zJMode != 0 {
 		if libsqlite3.Xsqlite3_stricmp(tls, zJMode, __ccgo_ts+2861) == 0 || libsqlite3.Xsqlite3_stricmp(tls, zJMode, __ccgo_ts+2869) == 0 {
 			v1 = __ccgo_ts + 2878
-			libc.VaList(bp, zJMode)
-			__local_argv1 = bp
+			libc.VaList(bp+192, zJMode)
+			__local_argv1 = bp + 192
 			__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 			_ = __local_argv1
 			_ = __retval1
@@ -2048,7 +2048,7 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 			;
 			zJMode = __ccgo_ts + 2918
 		}
-		runSql(tls, __ccgo_ts+2925, libc.VaList(bp+312, zJMode))
+		runSql(tls, __ccgo_ts+2925, libc.VaList(bp+360, zJMode))
 	}
 	if !(g.FbSync != 0) {
 		trySql(tls, __ccgo_ts+2949, 0)
@@ -2068,59 +2068,59 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 		libsqlite3.Xsqlite3_trace(tls, g.Fdb, __ccgo_fp(sqlTraceCallback), uintptr(0))
 	}
 	if iClient > 0 {
-		if **(**int32)(__ccgo_up(bp + 288)) > 0 {
-			unrecognizedArguments(tls, **(**uintptr)(__ccgo_up(argv)), **(**int32)(__ccgo_up(bp + 288)), argv+uintptr(2)*4)
+		if **(**int32)(__ccgo_up(bp + 336)) > 0 {
+			unrecognizedArguments(tls, **(**uintptr)(__ccgo_up(argv)), **(**int32)(__ccgo_up(bp + 336)), argv+uintptr(2)*4)
 		}
 		if g.FiTrace != 0 {
 			logMessage(tls, __ccgo_ts+2985, 0)
 		}
 		for int32(1) != 0 {
-			**(**uintptr)(__ccgo_up(bp + 300)) = uintptr(0)
-			rc = startScript(tls, iClient, bp+292, bp+296, bp+300)
+			**(**uintptr)(__ccgo_up(bp + 348)) = uintptr(0)
+			rc = startScript(tls, iClient, bp+340, bp+344, bp+348)
 			if rc == int32(SQLITE_DONE) {
 				break
 			}
 			if g.FiTrace != 0 {
-				logMessage(tls, __ccgo_ts+2998, libc.VaList(bp+312, **(**uintptr)(__ccgo_up(bp + 300)), **(**int32)(__ccgo_up(bp + 296))))
+				logMessage(tls, __ccgo_ts+2998, libc.VaList(bp+360, **(**uintptr)(__ccgo_up(bp + 348)), **(**int32)(__ccgo_up(bp + 344))))
 			}
-			runScript(tls, iClient, **(**int32)(__ccgo_up(bp + 296)), **(**uintptr)(__ccgo_up(bp + 292)), **(**uintptr)(__ccgo_up(bp + 300)))
+			runScript(tls, iClient, **(**int32)(__ccgo_up(bp + 344)), **(**uintptr)(__ccgo_up(bp + 340)), **(**uintptr)(__ccgo_up(bp + 348)))
 			if g.FiTrace != 0 {
-				logMessage(tls, __ccgo_ts+3012, libc.VaList(bp+312, **(**uintptr)(__ccgo_up(bp + 300)), **(**int32)(__ccgo_up(bp + 296))))
+				logMessage(tls, __ccgo_ts+3012, libc.VaList(bp+360, **(**uintptr)(__ccgo_up(bp + 348)), **(**int32)(__ccgo_up(bp + 344))))
 			}
-			finishScript(tls, iClient, **(**int32)(__ccgo_up(bp + 296)), 0)
-			libsqlite3.Xsqlite3_free(tls, **(**uintptr)(__ccgo_up(bp + 300)))
+			finishScript(tls, iClient, **(**int32)(__ccgo_up(bp + 344)), 0)
+			libsqlite3.Xsqlite3_free(tls, **(**uintptr)(__ccgo_up(bp + 348)))
 			libsqlite3.Xsqlite3_sleep(tls, int32(10))
 		}
 		if g.FiTrace != 0 {
 			logMessage(tls, __ccgo_ts+3024, 0)
 		}
 	} else {
-		if **(**int32)(__ccgo_up(bp + 288)) == 0 {
+		if **(**int32)(__ccgo_up(bp + 336)) == 0 {
 			fatalError(tls, __ccgo_ts+3035, 0)
 		}
-		if **(**int32)(__ccgo_up(bp + 288)) > int32(1) {
-			unrecognizedArguments(tls, **(**uintptr)(__ccgo_up(argv)), **(**int32)(__ccgo_up(bp + 288)), argv+uintptr(2)*4)
+		if **(**int32)(__ccgo_up(bp + 336)) > int32(1) {
+			unrecognizedArguments(tls, **(**uintptr)(__ccgo_up(argv)), **(**int32)(__ccgo_up(bp + 336)), argv+uintptr(2)*4)
 		}
 		runSql(tls, __ccgo_ts+3059, 0)
-		**(**uintptr)(__ccgo_up(bp + 292)) = readFile(tls, **(**uintptr)(__ccgo_up(argv + 2*4)))
+		**(**uintptr)(__ccgo_up(bp + 340)) = readFile(tls, **(**uintptr)(__ccgo_up(argv + 2*4)))
 		iRep = int32(1)
 		for {
 			if !(iRep <= nRep) {
 				break
 			}
 			if g.FiTrace != 0 {
-				logMessage(tls, __ccgo_ts+3495, libc.VaList(bp+312, **(**uintptr)(__ccgo_up(argv + 2*4)), iRep))
+				logMessage(tls, __ccgo_ts+3495, libc.VaList(bp+360, **(**uintptr)(__ccgo_up(argv + 2*4)), iRep))
 			}
-			runScript(tls, 0, 0, **(**uintptr)(__ccgo_up(bp + 292)), **(**uintptr)(__ccgo_up(argv + 2*4)))
+			runScript(tls, 0, 0, **(**uintptr)(__ccgo_up(bp + 340)), **(**uintptr)(__ccgo_up(argv + 2*4)))
 			if g.FiTrace != 0 {
-				logMessage(tls, __ccgo_ts+3523, libc.VaList(bp+312, **(**uintptr)(__ccgo_up(argv + 2*4)), iRep))
+				logMessage(tls, __ccgo_ts+3523, libc.VaList(bp+360, **(**uintptr)(__ccgo_up(argv + 2*4)), iRep))
 			}
 			goto _25
 		_25:
 			;
 			iRep = iRep + 1
 		}
-		libsqlite3.Xsqlite3_free(tls, **(**uintptr)(__ccgo_up(bp + 292)))
+		libsqlite3.Xsqlite3_free(tls, **(**uintptr)(__ccgo_up(bp + 340)))
 		waitForClient(tls, 0, int32(2000), __ccgo_ts+3549)
 		trySql(tls, __ccgo_ts+3569, 0)
 		libsqlite3.Xsqlite3_sleep(tls, int32(10))
@@ -2158,8 +2158,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	maybeClose(tls, g.FpErrLog)
 	if iClient == 0 {
 		v1 = __ccgo_ts + 3654
-		libc.VaList(bp, g.FnError, g.FnTest)
-		__local_argv1 = bp
+		libc.VaList(bp+224, g.FnError, g.FnTest)
+		__local_argv1 = bp + 224
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1
@@ -2167,8 +2167,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	_29:
 		;
 		v1 = __ccgo_ts + 3690
-		libc.VaList(bp, **(**uintptr)(__ccgo_up(argv)))
-		__local_argv1 = bp
+		libc.VaList(bp+256, **(**uintptr)(__ccgo_up(argv)))
+		__local_argv1 = bp + 256
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1
@@ -2181,8 +2181,8 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 				break
 			}
 			v1 = __ccgo_ts + 2349
-			libc.VaList(bp, **(**uintptr)(__ccgo_up(argv + uintptr(i)*4)))
-			__local_argv1 = bp
+			libc.VaList(bp+288, **(**uintptr)(__ccgo_up(argv + uintptr(i)*4)))
+			__local_argv1 = bp + 288
 			__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 			_ = __local_argv1
 			_ = __retval1
@@ -2195,7 +2195,7 @@ func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 			i = i + 1
 		}
 		v1 = __ccgo_ts + 2353
-		__local_argv1 = bp
+		__local_argv1 = bp + 320
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1

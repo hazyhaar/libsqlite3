@@ -12585,8 +12585,8 @@ func _test_decode_hexdb(tls *libc.TLS, clientData uintptr, interp uintptr, objc 
 			goto _1
 		}
 		v3 = __ccgo_ts + 5447
-		libc.VaList(bp, bp+220, bp+224)
-		__local_argv = bp
+		libc.VaList(bp+32, bp+220, bp+224)
+		__local_argv = bp + 32
 		__retval = libc.X__mingw_vsscanf(tls, zIn+uintptr(i), v3, __local_argv)
 		_ = __local_argv
 		v4 = __retval
@@ -12598,8 +12598,8 @@ func _test_decode_hexdb(tls *libc.TLS, clientData uintptr, interp uintptr, objc 
 			goto _1
 		}
 		v3 = __ccgo_ts + 5467
-		libc.VaList(bp, bp+220, bp+228, bp+228+1*4, bp+228+2*4, bp+228+3*4, bp+228+4*4, bp+228+5*4, bp+228+6*4, bp+228+7*4, bp+228+8*4, bp+228+9*4, bp+228+10*4, bp+228+11*4, bp+228+12*4, bp+228+13*4, bp+228+14*4, bp+228+15*4)
-		__local_argv = bp
+		libc.VaList(bp+64, bp+220, bp+228, bp+228+1*4, bp+228+2*4, bp+228+3*4, bp+228+4*4, bp+228+5*4, bp+228+6*4, bp+228+7*4, bp+228+8*4, bp+228+9*4, bp+228+10*4, bp+228+11*4, bp+228+12*4, bp+228+13*4, bp+228+14*4, bp+228+15*4)
+		__local_argv = bp + 64
 		__retval = libc.X__mingw_vsscanf(tls, zIn+uintptr(i), v3, __local_argv)
 		_ = __local_argv
 		v4 = __retval
@@ -88528,7 +88528,7 @@ func x_main(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	var __local_argv T__builtin_va_list
 	var __retval, i int32
 	var interp, zInfo, zScript, v1 uintptr
-	var _ /* zArgc at bp+56 */ [32]int8
+	var _ /* zArgc at bp+64 */ [32]int8
 	_, _, _, _, _, _, _ = __local_argv, __retval, i, interp, zInfo, zScript, v1
 	zScript = uintptr(0)
 	if libc.Xgetenv(tls, __ccgo_ts+54849) != 0 {
@@ -88555,8 +88555,8 @@ func x_main(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 	libtcl8_6.XTcl_SetSystemEncoding(tls, libc.UintptrFromInt32(0), __ccgo_ts+54930)
 	interp = libtcl8_6.XTcl_CreateInterp(tls)
 	x_Sqlite3_Init(tls, interp)
-	x_sqlite3_snprintf(tls, int32(32), bp+56, __ccgo_ts+160, libc.VaList(bp+96, argc-int32(1)))
-	libtcl8_6.XTcl_SetVar2(tls, interp, __ccgo_ts+54936, libc.UintptrFromInt32(0), bp+56, int32(m_TCL_GLOBAL_ONLY))
+	x_sqlite3_snprintf(tls, int32(32), bp+64, __ccgo_ts+160, libc.VaList(bp+104, argc-int32(1)))
+	libtcl8_6.XTcl_SetVar2(tls, interp, __ccgo_ts+54936, libc.UintptrFromInt32(0), bp+64, int32(m_TCL_GLOBAL_ONLY))
 	libtcl8_6.XTcl_SetVar2(tls, interp, __ccgo_ts+54941, libc.UintptrFromInt32(0), **(**uintptr)(__ccgo_up(argv)), int32(m_TCL_GLOBAL_ONLY))
 	libtcl8_6.XTcl_SetVar2(tls, interp, __ccgo_ts+54947, libc.UintptrFromInt32(0), __ccgo_ts+1173, int32(m_TCL_GLOBAL_ONLY))
 	i = int32(1)
@@ -88580,8 +88580,8 @@ func x_main(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
 			zInfo = libtcl8_6.XTcl_GetStringResult(tls, interp)
 		}
 		v1 = __ccgo_ts + 54962
-		libc.VaList(bp, **(**uintptr)(__ccgo_up(argv)), zInfo)
-		__local_argv = bp
+		libc.VaList(bp+32, **(**uintptr)(__ccgo_up(argv)), zInfo)
+		__local_argv = bp + 32
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(2)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval

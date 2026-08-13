@@ -651,8 +651,8 @@ func speedtest1_begin_test(tls *libc.TLS, iTestNum int32, zTestName uintptr, va 
 	}
 	if g.FbSqlOnly != 0 {
 		v1 = __ccgo_ts + 320
-		libc.VaList(bp, iTestNum, zName, int32(NAMEWIDTH)-n, uintptr(unsafe.Pointer(&zDots)))
-		__local_argv1 = bp
+		libc.VaList(bp+48, iTestNum, zName, int32(NAMEWIDTH)-n, uintptr(unsafe.Pointer(&zDots)))
+		__local_argv1 = bp + 48
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1
@@ -660,8 +660,8 @@ func speedtest1_begin_test(tls *libc.TLS, iTestNum int32, zTestName uintptr, va 
 	_4:
 	} else {
 		v1 = __ccgo_ts + 340
-		libc.VaList(bp, iTestNum, zName, int32(NAMEWIDTH)-n, uintptr(unsafe.Pointer(&zDots)))
-		__local_argv1 = bp
+		libc.VaList(bp+96, iTestNum, zName, int32(NAMEWIDTH)-n, uintptr(unsafe.Pointer(&zDots)))
+		__local_argv1 = bp + 96
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1
@@ -705,8 +705,8 @@ func speedtest1_end_test(tls *libc.TLS) {
 	if !(g.FbSqlOnly != 0) {
 		g.FiTotal += iElapseTime
 		v1 = __ccgo_ts + 393
-		libc.VaList(bp, int32(iElapseTime/libc.Int64FromInt32(1000)), int32(iElapseTime%libc.Int64FromInt32(1000)))
-		__local_argv1 = bp
+		libc.VaList(bp+32, int32(iElapseTime/libc.Int64FromInt32(1000)), int32(iElapseTime%libc.Int64FromInt32(1000)))
+		__local_argv1 = bp + 32
 		__retval1 = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv1)
 		_ = __local_argv1
 		_ = __retval1
@@ -724,8 +724,8 @@ func speedtest1_end_test(tls *libc.TLS) {
 //
 //	/* Report end of testing */
 func speedtest1_final(tls *libc.TLS) {
-	bp := tls.Alloc(112)
-	defer tls.Free(112)
+	bp := tls.Alloc(128)
+	defer tls.Free(128)
 	var __local_argv __builtin_va_list
 	var __retval, i int32
 	var v1 uintptr
@@ -742,8 +742,8 @@ func speedtest1_final(tls *libc.TLS) {
 	}
 	if g.FbVerify != 0 {
 		v1 = __ccgo_ts + 432
-		libc.VaList(bp, g.FnResByte)
-		__local_argv = bp
+		libc.VaList(bp+48, g.FnResByte)
+		__local_argv = bp + 48
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -758,8 +758,8 @@ func speedtest1_final(tls *libc.TLS) {
 				break
 			}
 			v1 = __ccgo_ts + 459
-			libc.VaList(bp, int32(**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(i)))))
-			__local_argv = bp
+			libc.VaList(bp+80, int32(**(**uint8)(__ccgo_up(uintptr(unsafe.Pointer(&g)) + 3168 + 259 + uintptr(i)))))
+			__local_argv = bp + 80
 			__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 			_ = __local_argv
 			_ = __retval
@@ -775,7 +775,7 @@ func speedtest1_final(tls *libc.TLS) {
 			libc.Xfclose(tls, g.FhashFile)
 		}
 		v1 = __ccgo_ts + 457
-		__local_argv = bp
+		__local_argv = bp + 112
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -808,8 +808,8 @@ func printSql(tls *libc.TLS, zSql uintptr) {
 	_2:
 	}
 	v1 = __ccgo_ts + 473
-	libc.VaList(bp, n, zSql)
-	__local_argv = bp
+	libc.VaList(bp+16, n, zSql)
+	__local_argv = bp + 16
 	__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 	_ = __local_argv
 	_ = __retval
@@ -818,8 +818,8 @@ _4:
 	;
 	if g.FbExplain != 0 && (libsqlite3.Xsqlite3_strglob(tls, __ccgo_ts+480, zSql) == 0 || libsqlite3.Xsqlite3_strglob(tls, __ccgo_ts+489, zSql) == 0 || libsqlite3.Xsqlite3_strglob(tls, __ccgo_ts+496, zSql) == 0) {
 		v1 = __ccgo_ts + 473
-		libc.VaList(bp, n, zSql)
-		__local_argv = bp
+		libc.VaList(bp+48, n, zSql)
+		__local_argv = bp + 48
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -2766,13 +2766,13 @@ _2:
 }
 
 func main1(tls *libc.TLS, argc int32, argv uintptr) (r int32) {
-	bp := tls.Alloc(528)
-	defer tls.Free(528)
+	bp := tls.Alloc(624)
+	defer tls.Free(624)
 	var __local_argv __builtin_va_list
 	var __retval, cacheSize, doAutovac, doExclusive, doFullFSync, doIncrvac, doPCache, doTrace, i, kk, memDb, mmapSize, mnHeap, nHardHeapLmt, nHeap, nLook, nPCache, nSoftHeapLmt, nThread, noSync, openFlags, pageSize, rc, showStats, szLook, szPCache, v4, v5 int32
 	var pHeap, pLook, pPCache, pVfs, z, zComma, zEncoding, zJMode, zKey, zObj, zSep, zSql, zTSet, zThisTest, v1 uintptr
-	var _ /* iCur at bp+488 */ int32
-	var _ /* iHi at bp+492 */ int32
+	var _ /* iCur at bp+584 */ int32
+	var _ /* iHi at bp+588 */ int32
 	_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _ = __local_argv, __retval, cacheSize, doAutovac, doExclusive, doFullFSync, doIncrvac, doPCache, doTrace, i, kk, memDb, mmapSize, mnHeap, nHardHeapLmt, nHeap, nLook, nPCache, nSoftHeapLmt, nThread, noSync, openFlags, pHeap, pLook, pPCache, pVfs, pageSize, rc, showStats, szLook, szPCache, z, zComma, zEncoding, zJMode, zKey, zObj, zSep, zSql, zTSet, zThisTest, v1, v4, v5
 	doAutovac = 0   /* True for --autovacuum */
 	cacheSize = 0   /* Desired cache size.  0 means default */
@@ -2842,7 +2842,7 @@ _2:
 				} else {
 					if libc.Xstrcmp(tls, z, __ccgo_ts+36589) == 0 {
 						if i >= argc-int32(1) {
-							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 						}
 						i = i + 1
 						v4 = i
@@ -2863,14 +2863,14 @@ _2:
 									} else {
 										if libc.Xstrcmp(tls, z, __ccgo_ts+36662) == 0 {
 											if i >= argc-int32(1) {
-												fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+												fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 											}
 											nHardHeapLmt = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 											i = i + int32(1)
 										} else {
 											if libc.Xstrcmp(tls, z, __ccgo_ts+36678) == 0 {
 												if i >= argc-int32(2) {
-													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 												}
 												nHeap = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 												mnHeap = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
@@ -2881,7 +2881,7 @@ _2:
 												} else {
 													if libc.Xstrcmp(tls, z, __ccgo_ts+36694) == 0 {
 														if i >= argc-int32(1) {
-															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 														}
 														i = i + 1
 														v4 = i
@@ -2889,7 +2889,7 @@ _2:
 													} else {
 														if libc.Xstrcmp(tls, z, __ccgo_ts+36702) == 0 {
 															if i >= argc-int32(1) {
-																fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 															}
 															i = i + 1
 															v4 = i
@@ -2897,7 +2897,7 @@ _2:
 														} else {
 															if libc.Xstrcmp(tls, z, __ccgo_ts+36706) == 0 {
 																if i >= argc-int32(2) {
-																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																}
 																nLook = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 																szLook = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
@@ -2910,11 +2910,11 @@ _2:
 																		libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_MULTITHREAD), 0)
 																	} else {
 																		if libc.Xstrcmp(tls, z, __ccgo_ts+36734) == 0 {
-																			libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_MEMSTATUS), libc.VaList(bp+504, 0))
+																			libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_MEMSTATUS), libc.VaList(bp+600, 0))
 																		} else {
 																			if libc.Xstrcmp(tls, z, __ccgo_ts+36744) == 0 {
 																				if i >= argc-int32(1) {
-																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																				}
 																				i = i + 1
 																				v4 = i
@@ -2931,7 +2931,7 @@ _2:
 																						} else {
 																							if libc.Xstrcmp(tls, z, __ccgo_ts+36781) == 0 {
 																								if i >= argc-int32(1) {
-																									fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																									fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																								}
 																								i = i + 1
 																								if libc.Xstrcmp(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), __ccgo_ts+36788) == 0 {
@@ -2939,13 +2939,13 @@ _2:
 																								} else {
 																									g.FhashFile = libc.Xfopen(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), __ccgo_ts+36790)
 																									if g.FhashFile == uintptr(0) {
-																										fatal_error(tls, __ccgo_ts+36793, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																										fatal_error(tls, __ccgo_ts+36793, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																									}
 																								}
 																							} else {
 																								if libc.Xstrcmp(tls, z, __ccgo_ts+36823) == 0 {
 																									if i >= argc-int32(1) {
-																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																									}
 																									i = i + 1
 																									v4 = i
@@ -2953,7 +2953,7 @@ _2:
 																								} else {
 																									if libc.Xstrcmp(tls, z, __ccgo_ts+36832) == 0 {
 																										if i >= argc-int32(2) {
-																											fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																											fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																										}
 																										nPCache = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 																										szPCache = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(2))*8)))
@@ -2965,7 +2965,7 @@ _2:
 																										} else {
 																											if libc.Xstrcmp(tls, z, __ccgo_ts+36862) == 0 {
 																												if i >= argc-int32(1) {
-																													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																													fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																												}
 																												i = i + 1
 																												v4 = i
@@ -2982,7 +2982,7 @@ _2:
 																														} else {
 																															if libc.Xstrcmp(tls, z, __ccgo_ts+36903) == 0 {
 																																if i >= argc-int32(1) {
-																																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																	fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																}
 																																if g.FpScript != 0 {
 																																	libc.Xfclose(tls, g.FpScript)
@@ -2991,7 +2991,7 @@ _2:
 																																v4 = i
 																																g.FpScript = libc.Xfopen(tls, **(**uintptr)(__ccgo_up(argv + uintptr(v4)*8)), __ccgo_ts+36790)
 																																if g.FpScript == uintptr(0) {
-																																	fatal_error(tls, __ccgo_ts+36910, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																	fatal_error(tls, __ccgo_ts+36910, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																}
 																															} else {
 																																if libc.Xstrcmp(tls, z, __ccgo_ts+36943) == 0 {
@@ -3002,7 +3002,7 @@ _2:
 																																	} else {
 																																		if libc.Xstrcmp(tls, z, __ccgo_ts+36965) == 0 {
 																																			if i >= argc-int32(1) {
-																																				fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																				fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																			}
 																																			i = i + 1
 																																			v5 = i
@@ -3012,7 +3012,7 @@ _2:
 																																		} else {
 																																			if libc.Xstrcmp(tls, z, __ccgo_ts+36970) == 0 {
 																																				if i >= argc-int32(1) {
-																																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																					fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																				}
 																																				nSoftHeapLmt = integerValue(tls, **(**uintptr)(__ccgo_up(argv + uintptr(i+int32(1))*8)))
 																																				i = i + int32(1)
@@ -3022,7 +3022,7 @@ _2:
 																																				} else {
 																																					if libc.Xstrcmp(tls, z, __ccgo_ts+36992) == 0 {
 																																						if i >= argc-int32(1) {
-																																							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																							fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																						}
 																																						i = i + 1
 																																						if int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))) < int32('0') || int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))) > int32('9') || int32(**(**int8)(__ccgo_up(**(**uintptr)(__ccgo_up(argv + uintptr(i)*8)) + 1))) != 0 {
@@ -3032,7 +3032,7 @@ _2:
 																																					} else {
 																																						if libc.Xstrcmp(tls, z, __ccgo_ts+37050) == 0 {
 																																							if i >= argc-int32(1) {
-																																								fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																								fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																							}
 																																							i = i + 1
 																																							v4 = i
@@ -3043,7 +3043,7 @@ _2:
 																																							} else {
 																																								if libc.Xstrcmp(tls, z, __ccgo_ts+37064) == 0 {
 																																									if i >= argc-int32(1) {
-																																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																										fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																									}
 																																									i = i + 1
 																																									v4 = i
@@ -3061,7 +3061,7 @@ _2:
 																																											} else {
 																																												if libc.Xstrcmp(tls, z, __ccgo_ts+37095) == 0 {
 																																													if i >= argc-int32(1) {
-																																														fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																														fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																													}
 																																													i = i + 1
 																																													v4 = i
@@ -3069,7 +3069,7 @@ _2:
 																																												} else {
 																																													if libc.Xstrcmp(tls, z, __ccgo_ts+37099) == 0 {
 																																														if i >= argc-int32(1) {
-																																															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
+																																															fatal_error(tls, __ccgo_ts+36599, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))))
 																																														}
 																																														i = i + 1
 																																														v4 = i
@@ -3103,8 +3103,8 @@ _2:
 																																																} else {
 																																																	if libc.Xstrcmp(tls, z, __ccgo_ts+37179) == 0 || libc.Xstrcmp(tls, z, __ccgo_ts+37184) == 0 {
 																																																		v1 = uintptr(unsafe.Pointer(&zHelp))
-																																																		libc.VaList(bp, **(**uintptr)(__ccgo_up(argv)))
-																																																		__local_argv = bp
+																																																		libc.VaList(bp+32, **(**uintptr)(__ccgo_up(argv)))
+																																																		__local_argv = bp + 32
 																																																		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 																																																		_ = __local_argv
 																																																		_ = __retval
@@ -3113,7 +3113,7 @@ _2:
 																																																		;
 																																																		libc.Xexit(tls, 0)
 																																																	} else {
-																																																		fatal_error(tls, __ccgo_ts+37186, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
+																																																		fatal_error(tls, __ccgo_ts+37186, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
 																																																	}
 																																																}
 																																															}
@@ -3165,7 +3165,7 @@ _2:
 			if g.FzDbName == uintptr(0) {
 				g.FzDbName = **(**uintptr)(__ccgo_up(argv + uintptr(i)*8))
 			} else {
-				fatal_error(tls, __ccgo_ts+37227, libc.VaList(bp+504, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
+				fatal_error(tls, __ccgo_ts+37227, libc.VaList(bp+600, **(**uintptr)(__ccgo_up(argv + uintptr(i)*8)), **(**uintptr)(__ccgo_up(argv))))
 			}
 		}
 		goto _3
@@ -3176,27 +3176,27 @@ _2:
 	if nHeap > 0 {
 		pHeap = libc.Xmalloc(tls, uint64(nHeap))
 		if pHeap == uintptr(0) {
-			fatal_error(tls, __ccgo_ts+37270, libc.VaList(bp+504, nHeap))
+			fatal_error(tls, __ccgo_ts+37270, libc.VaList(bp+600, nHeap))
 		}
-		rc = libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_HEAP), libc.VaList(bp+504, pHeap, nHeap, mnHeap))
+		rc = libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_HEAP), libc.VaList(bp+600, pHeap, nHeap, mnHeap))
 		if rc != 0 {
-			fatal_error(tls, __ccgo_ts+37300, libc.VaList(bp+504, rc))
+			fatal_error(tls, __ccgo_ts+37300, libc.VaList(bp+600, rc))
 		}
 	}
 	if doPCache != 0 {
 		if nPCache > 0 && szPCache > 0 {
 			pPCache = libc.Xmalloc(tls, uint64(int64(nPCache)*int64(szPCache)))
 			if pPCache == uintptr(0) {
-				fatal_error(tls, __ccgo_ts+37331, libc.VaList(bp+504, int64(nPCache)*int64(szPCache)))
+				fatal_error(tls, __ccgo_ts+37331, libc.VaList(bp+600, int64(nPCache)*int64(szPCache)))
 			}
 		}
-		rc = libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_PAGECACHE), libc.VaList(bp+504, pPCache, szPCache, nPCache))
+		rc = libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_PAGECACHE), libc.VaList(bp+600, pPCache, szPCache, nPCache))
 		if rc != 0 {
-			fatal_error(tls, __ccgo_ts+37365, libc.VaList(bp+504, rc))
+			fatal_error(tls, __ccgo_ts+37365, libc.VaList(bp+600, rc))
 		}
 	}
 	if nLook >= 0 {
-		libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_LOOKASIDE), libc.VaList(bp+504, 0, 0))
+		libsqlite3.Xsqlite3_config(tls, int32(SQLITE_CONFIG_LOOKASIDE), libc.VaList(bp+600, 0, 0))
 	}
 	libsqlite3.Xsqlite3_initialize(tls)
 	if g.FzDbName != uintptr(0) {
@@ -3219,20 +3219,20 @@ _2:
 		v1 = g.FzDbName
 	}
 	if libsqlite3.Xsqlite3_open_v2(tls, v1, uintptr(unsafe.Pointer(&g)), openFlags, g.FzVfs) != 0 {
-		fatal_error(tls, __ccgo_ts+18708, libc.VaList(bp+504, g.FzDbName))
+		fatal_error(tls, __ccgo_ts+18708, libc.VaList(bp+600, g.FzDbName))
 	}
 	if nLook > 0 && szLook > 0 {
 		pLook = libc.Xmalloc(tls, uint64(nLook*szLook))
-		rc = libsqlite3.Xsqlite3_db_config(tls, g.Fdb, int32(SQLITE_DBCONFIG_LOOKASIDE), libc.VaList(bp+504, pLook, szLook, nLook))
+		rc = libsqlite3.Xsqlite3_db_config(tls, g.Fdb, int32(SQLITE_DBCONFIG_LOOKASIDE), libc.VaList(bp+600, pLook, szLook, nLook))
 		if rc != 0 {
-			fatal_error(tls, __ccgo_ts+37407, libc.VaList(bp+504, rc))
+			fatal_error(tls, __ccgo_ts+37407, libc.VaList(bp+600, rc))
 		}
 	}
 	if g.FnReserve > 0 {
 		libsqlite3.Xsqlite3_file_control(tls, g.Fdb, uintptr(0), int32(SQLITE_FCNTL_RESERVE_BYTES), uintptr(unsafe.Pointer(&g))+92)
 	}
 	if g.FstmtScanStatus != 0 {
-		libsqlite3.Xsqlite3_db_config(tls, g.Fdb, int32(SQLITE_DBCONFIG_STMT_SCANSTATUS), libc.VaList(bp+504, int32(1), 0))
+		libsqlite3.Xsqlite3_db_config(tls, g.Fdb, int32(SQLITE_DBCONFIG_STMT_SCANSTATUS), libc.VaList(bp+600, int32(1), 0))
 	}
 	/* Set database connection options */
 	libsqlite3.Xsqlite3_create_function(tls, g.Fdb, __ccgo_ts+37443, 0, int32(SQLITE_UTF8), uintptr(0), __ccgo_fp(randomFunc), uintptr(0), uintptr(0))
@@ -3243,14 +3243,14 @@ _2:
 		speedtest1_exec(tls, __ccgo_ts+37450, 0)
 	}
 	if mmapSize > 0 {
-		speedtest1_exec(tls, __ccgo_ts+37475, libc.VaList(bp+504, mmapSize))
+		speedtest1_exec(tls, __ccgo_ts+37475, libc.VaList(bp+600, mmapSize))
 	}
-	speedtest1_exec(tls, __ccgo_ts+37495, libc.VaList(bp+504, nThread))
+	speedtest1_exec(tls, __ccgo_ts+37495, libc.VaList(bp+600, nThread))
 	if zKey != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37513, libc.VaList(bp+504, zKey))
+		speedtest1_exec(tls, __ccgo_ts+37513, libc.VaList(bp+600, zKey))
 	}
 	if zEncoding != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37530, libc.VaList(bp+504, zEncoding))
+		speedtest1_exec(tls, __ccgo_ts+37530, libc.VaList(bp+600, zEncoding))
 	}
 	if doAutovac != 0 {
 		speedtest1_exec(tls, __ccgo_ts+37549, 0)
@@ -3260,10 +3260,10 @@ _2:
 		}
 	}
 	if pageSize != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37604, libc.VaList(bp+504, pageSize))
+		speedtest1_exec(tls, __ccgo_ts+37604, libc.VaList(bp+600, pageSize))
 	}
 	if cacheSize != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37624, libc.VaList(bp+504, cacheSize))
+		speedtest1_exec(tls, __ccgo_ts+37624, libc.VaList(bp+600, cacheSize))
 	}
 	if noSync != 0 {
 		speedtest1_exec(tls, __ccgo_ts+37645, 0)
@@ -3276,20 +3276,20 @@ _2:
 		speedtest1_exec(tls, __ccgo_ts+37688, 0)
 	}
 	if zJMode != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37718, libc.VaList(bp+504, zJMode))
+		speedtest1_exec(tls, __ccgo_ts+37718, libc.VaList(bp+600, zJMode))
 	}
 	if nHardHeapLmt > 0 {
-		speedtest1_exec(tls, __ccgo_ts+37741, libc.VaList(bp+504, nHardHeapLmt))
+		speedtest1_exec(tls, __ccgo_ts+37741, libc.VaList(bp+600, nHardHeapLmt))
 	}
 	if nSoftHeapLmt > 0 {
-		speedtest1_exec(tls, __ccgo_ts+37767, libc.VaList(bp+504, nSoftHeapLmt))
+		speedtest1_exec(tls, __ccgo_ts+37767, libc.VaList(bp+600, nSoftHeapLmt))
 	}
 	if zJMode != 0 {
-		speedtest1_exec(tls, __ccgo_ts+37718, libc.VaList(bp+504, zJMode))
+		speedtest1_exec(tls, __ccgo_ts+37718, libc.VaList(bp+600, zJMode))
 	}
 	if g.FbExplain != 0 {
 		v1 = __ccgo_ts + 37793
-		__local_argv = bp
+		__local_argv = bp + 64
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -3321,7 +3321,7 @@ _2:
 				kk = kk + 1
 			}
 			if kk == int32(1) || int32(**(**int8)(__ccgo_up(zSep + uintptr(kk)))) != 0 {
-				fatal_error(tls, __ccgo_ts+37812, libc.VaList(bp+504, zThisTest))
+				fatal_error(tls, __ccgo_ts+37812, libc.VaList(bp+600, zThisTest))
 			}
 			g.FszTest = g.FszBase * integerValue(tls, zSep+uintptr(1)) / int32(100)
 			if g.FszTest <= 0 {
@@ -3333,8 +3333,8 @@ _2:
 		}
 		if g.FiTotal > 0 || zComma == uintptr(0) {
 			v1 = __ccgo_ts + 37847
-			libc.VaList(bp, zThisTest)
-			__local_argv = bp
+			libc.VaList(bp+80, zThisTest)
+			__local_argv = bp + 80
 			__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 			_ = __local_argv
 			_ = __retval
@@ -3374,7 +3374,7 @@ _2:
 												if libc.Xstrcmp(tls, zThisTest, __ccgo_ts+37931) == 0 {
 													testset_rtree(tls, int32(6), int32(147))
 												} else {
-													fatal_error(tls, __ccgo_ts+37937, libc.VaList(bp+504, zThisTest))
+													fatal_error(tls, __ccgo_ts+37937, libc.VaList(bp+600, zThisTest))
 												}
 											}
 										}
@@ -3393,7 +3393,7 @@ _2:
 				if zObj == uintptr(0) {
 					break
 				}
-				zSql = libsqlite3.Xsqlite3_mprintf(tls, __ccgo_ts+38095, libc.VaList(bp+504, zObj))
+				zSql = libsqlite3.Xsqlite3_mprintf(tls, __ccgo_ts+38095, libc.VaList(bp+600, zObj))
 				speedtest1_exec(tls, zSql, 0)
 				libsqlite3.Xsqlite3_free(tls, zSql)
 				libsqlite3.Xsqlite3_free(tls, zObj)
@@ -3403,7 +3403,7 @@ _2:
 				if zObj == uintptr(0) {
 					break
 				}
-				zSql = libsqlite3.Xsqlite3_mprintf(tls, __ccgo_ts+38095, libc.VaList(bp+504, zObj))
+				zSql = libsqlite3.Xsqlite3_mprintf(tls, __ccgo_ts+38095, libc.VaList(bp+600, zObj))
 				speedtest1_exec(tls, zSql, 0)
 				libsqlite3.Xsqlite3_free(tls, zSql)
 				libsqlite3.Xsqlite3_free(tls, zObj)
@@ -3418,100 +3418,100 @@ _2:
 	/* Database connection statistics printed after both prepared statements
 	 ** have been finalized */
 	if showStats != 0 {
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, SQLITE_DBSTATUS_LOOKASIDE_USED, bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, SQLITE_DBSTATUS_LOOKASIDE_USED, bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38209
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)), **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+112, **(**int32)(__ccgo_up(bp + 584)), **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 112
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _26
 	_26:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_HIT), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_HIT), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38254
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+144, **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 144
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _28
 	_28:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38290
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+176, **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 176
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _30
 	_30:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38326
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+208, **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 208
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _32
 	_32:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_USED), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_USED), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38362
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+240, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 240
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _34
 	_34:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_HIT), bp+488, bp+492, int32(1))
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_HIT), bp+584, bp+588, int32(1))
 		v1 = __ccgo_ts + 38404
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+272, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 272
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _36
 	_36:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_MISS), bp+488, bp+492, int32(1))
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_MISS), bp+584, bp+588, int32(1))
 		v1 = __ccgo_ts + 38440
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+304, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 304
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _38
 	_38:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_WRITE), bp+488, bp+492, int32(1))
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_CACHE_WRITE), bp+584, bp+588, int32(1))
 		v1 = __ccgo_ts + 38476
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+336, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 336
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _40
 	_40:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_SCHEMA_USED), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_SCHEMA_USED), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38512
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+368, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 368
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _42
 	_42:
 		;
-		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_STMT_USED), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_db_status(tls, g.Fdb, int32(SQLITE_DBSTATUS_STMT_USED), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38554
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)))
-		__local_argv = bp
+		libc.VaList(bp+400, **(**int32)(__ccgo_up(bp + 584)))
+		__local_argv = bp + 400
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
@@ -3522,50 +3522,50 @@ _2:
 	/* Global memory usage statistics printed after the database connection
 	 ** has closed.  Memory usage should be zero at this point. */
 	if showStats != 0 {
-		libsqlite3.Xsqlite3_status(tls, SQLITE_STATUS_MEMORY_USED, bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_status(tls, SQLITE_STATUS_MEMORY_USED, bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38596
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)), **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+432, **(**int32)(__ccgo_up(bp + 584)), **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 432
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _46
 	_46:
 		;
-		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_COUNT), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_COUNT), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38641
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)), **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+464, **(**int32)(__ccgo_up(bp + 584)), **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 464
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _48
 	_48:
 		;
-		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_OVERFLOW), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_OVERFLOW), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38686
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 488)), **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+496, **(**int32)(__ccgo_up(bp + 584)), **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 496
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _50
 	_50:
 		;
-		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_SIZE), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_MALLOC_SIZE), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38731
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+528, **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 528
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
 		goto _52
 	_52:
 		;
-		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_SIZE), bp+488, bp+492, 0)
+		libsqlite3.Xsqlite3_status(tls, int32(SQLITE_STATUS_PAGECACHE_SIZE), bp+584, bp+588, 0)
 		v1 = __ccgo_ts + 38773
-		libc.VaList(bp, **(**int32)(__ccgo_up(bp + 492)))
-		__local_argv = bp
+		libc.VaList(bp+560, **(**int32)(__ccgo_up(bp + 588)))
+		__local_argv = bp + 560
 		__retval = libc.X__mingw_vfprintf(tls, libc.X__acrt_iob_func(tls, uint32(1)), v1, __local_argv)
 		_ = __local_argv
 		_ = __retval
