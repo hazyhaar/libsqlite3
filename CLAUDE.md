@@ -203,10 +203,21 @@ Before chasing a Tcl failure, check the tables at the top of `all_test.go`:
   from C because escaped locals share the heap and TLS stacks live until `TLS.Close`. Plus 18
   `dbstatus-2.*` entries added for windows in `init()`.
 - `knownCFailures` — fails in upstream C too: `snapshot_fault-4.1.1` (linux/ppc64le), `like-14.2`
-  (freebsd/arm — a 1 s timing assertion on an emulated builder).
-- per-target blacklists in `TestTclTest` — `bigsort.test` (OOM/hang on linux/{arm64,loong64,riscv64,ppc64le}),
-  `symlink2.test`/`readonly.test`/`snapshot3.test` on windows; `TestConcurrentProcesses` is skipped
-  on linux/s390x (VM too slow).
+  (freebsd/arm — a 1 s timing assertion on an emulated builder; also linux/s390x, where it clears
+  the limit in isolation at 564 ms but trips inside the ~20 h full run).
+- per-target blacklists in `TestTclTest` — `bigsort.test`
+  (linux/{arm64,loong64,riscv64,ppc64le,s390x}), `symlink2.test`/`readonly.test`/`snapshot3.test`
+  on windows; `TestConcurrentProcesses` is skipped on linux/s390x (VM too slow).
+- `bigsort.test` on linux/s390x is **not** a RAM shortage, whatever the builder log says.
+  `modernc.org/memory` mmaps one VMA per 64 KB page, so the ~6.7 GB of C heap the test needs
+  (`PRAGMA cache_size = 4194304`, ie. a 4 GiB page cache) blows past the default `vm.max_map_count`
+  of 65530 at ~4.1 GB. Past the ceiling the kernel still extends existing VMAs, so libc keeps
+  allocating, but the next `mmap` needing a *fresh* one fails — either the Go runtime's heap-arena
+  metadata (`fatal error: out of memory allocating heap arena metadata`, process dies, builder
+  reports `final summary not detected`) or SQLite's allocator (`SQLITE_NOMEM`, clean
+  `bigsort-1.1 FAIL`), depending on who asks first. Both signatures were reproduced 2026-08-18;
+  death came at 8.1 GB RSS with 23.8 GB free on the 32 GB box. `sysctl -w vm.max_map_count=262144`
+  on the host is the alternative to the blacklist entry.
 - `setMaxOpenFiles(1024)` runs before the Tcl suite to keep `misc7.test` from hanging.
 - The copied test corpus is re-stamped with the current time right after `util.CopyDir` — **do not
   drop that walk**. `CopyDir` preserves the checkout's mtime *and* atime, so the ~1285 files landed

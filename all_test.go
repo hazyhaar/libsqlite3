@@ -277,6 +277,32 @@ func TestTclTest(t *testing.T) {
 	case "linux/ppc64le":
 		blacklist["bigsort.test"] = struct{}{} // OOM killed on ppc64le
 		knownCFailures["snapshot_fault-4.1.1"] = struct{}{}
+	case "linux/s390x":
+		// Not a RAM shortage, despite the "OOM" in the builder log: the run
+		// dies with "fatal error: out of memory allocating heap arena
+		// metadata" at ~8 GB RSS with 24 GB still available on a 32 GB box
+		// (2026-08-12, 08-17, reproduced in isolation 08-18). bigsort.test sets
+		// PRAGMA cache_size=4194304, ie. a 4 GiB page cache, and
+		// modernc.org/memory mmaps one VMA per 64 KB page, so the C heap alone
+		// reaches the default vm.max_map_count of 65530 at ~4.1 GB - measured
+		// exactly, both with a standalone allocator probe and by sampling
+		// /proc/<testfixture>/maps through the failing run. Past the ceiling
+		// the kernel can still extend existing VMAs, so libc keeps allocating,
+		// but any mmap needing a *new* one fails and the Go runtime's
+		// persistentalloc for a heap arena is the caller that happens to hit
+		// it. Raising vm.max_map_count on the host is the alternative to this
+		// entry.
+		blacklist["bigsort.test"] = struct{}{}
+
+		// like-14.2 is the same 1 s timing assertion as on freebsd/arm below,
+		// but here it is load-dependent rather than hard: run on its own on
+		// the builder it takes 564 ms against the 1000 ms limit (measured
+		// 2026-08-18), yet it failed on both full-suite runs that got far
+		// enough to report (2026-07-29, 08-15), where testfixture has been
+		// running for many hours by the time like.test comes up. Correctness
+		// is not in question: the body asserts nothing but elapsed wall time,
+		// it never inspects the query result. Same bucket as freebsd/arm.
+		knownCFailures["like-14.2"] = struct{}{}
 	case "freebsd/arm":
 		// like-14.2 asserts a LIKE-optimization query completes in under 1s.
 		// On the emulated 32-bit arm builder the query is correct but slow
