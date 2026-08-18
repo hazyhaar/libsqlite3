@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	_ "modernc.org/ccgo/v4/lib"
 	util "modernc.org/fileutil/ccgo"
@@ -316,6 +317,36 @@ func TestTclTest(t *testing.T) {
 	}
 
 	if _, _, err := util.CopyDir(tests, testsSrc, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	// util.CopyDir preserves the source timestamps, so every copy inherits the
+	// mtime/atime of the checkout. Those are as old as the last regeneration
+	// that actually changed the file, ie. typically weeks or months. The suite
+	// then runs for hours - for more than a day on the emulated builders - out
+	// of the system temporary directory, where the periodic reapers delete
+	// whatever looks stale:
+	//
+	//	OpenBSD /etc/daily:	find -x /tmp -type f ... -atime +7 -delete
+	//	Windows SilentCleanup:	VolumeCaches\Temporary Files, LastAccess=7 days
+	//
+	// Files already sourced survive - reading refreshes their atime, except on
+	// Windows, where NTFS last-access updates are off by default - the ones
+	// still ahead of the runner do not, and the run dies at the next [source]
+	// with "no such file or directory". Seen on windows/386 (2026-08-05
+	// walcrash4.test, 08-14 mallocB.test, 08-17 where.test), windows/arm64
+	// (2026-08-05 expridx1.test) and openbsd/arm64 (2026-08-06 crash6.test,
+	// 08-16 crash3.test) - a different file every time, always the next one the
+	// runner was about to source. Stamping the copies with the current time
+	// keeps them out of reach of both reapers.
+	now := time.Now()
+	if err := filepath.WalkDir(tests, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		return os.Chtimes(path, now, now)
+	}); err != nil {
 		t.Fatal(err)
 	}
 

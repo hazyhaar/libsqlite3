@@ -208,3 +208,11 @@ Before chasing a Tcl failure, check the tables at the top of `all_test.go`:
   `symlink2.test`/`readonly.test`/`snapshot3.test` on windows; `TestConcurrentProcesses` is skipped
   on linux/s390x (VM too slow).
 - `setMaxOpenFiles(1024)` runs before the Tcl suite to keep `misc7.test` from hanging.
+- The copied test corpus is re-stamped with the current time right after `util.CopyDir` — **do not
+  drop that walk**. `CopyDir` preserves the checkout's mtime *and* atime, so the ~1285 files landed
+  under `$TMPDIR` looking weeks stale, and the OS temp reapers deleted the not-yet-sourced ones
+  mid-run: OpenBSD `/etc/daily` (`find -x /tmp -type f … -atime +7 -delete`) and Windows
+  `SilentCleanup` (`VolumeCaches\Temporary Files`, `LastAccess` 7 days, fired by low free disk).
+  The symptom was a *different* `couldn't read file ".../<X>.test": no such file or directory`
+  every run — win32, pi400 (windows/arm64) and openbsd/arm64, because a run has to straddle a
+  cleanup pass; the fast builders finish first.
