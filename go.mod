@@ -8,9 +8,9 @@ require (
 	golang.org/x/sys v0.47.0
 	modernc.org/ccgo/v4 v4.35.0
 	modernc.org/fileutil v1.4.0
-	modernc.org/libc v1.75.3
-	modernc.org/libtcl8.6 v0.19.0
-	modernc.org/libz v0.19.0
+	modernc.org/libc v1.75.4
+	modernc.org/libtcl8.6 v0.20.0
+	modernc.org/libz v0.19.1
 )
 
 require (
@@ -27,7 +27,7 @@ require (
 	modernc.org/gc/v2 v2.6.5 // indirect
 	modernc.org/gc/v3 v3.1.5 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.12.0 // indirect
+	modernc.org/memory v1.12.1 // indirect
 	modernc.org/opt v0.2.0 // indirect
 	modernc.org/sortutil v1.2.1 // indirect
 	modernc.org/strutil v1.2.1 // indirect
