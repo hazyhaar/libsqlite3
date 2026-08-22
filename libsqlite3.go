@@ -44,7 +44,7 @@
 // guarantees only that the package will build and that at least some tests are
 // passing.
 //
-// There are no Tier 2 platforms at the moment
+// # There are no Tier 2 platforms at the moment
 //
 // # Builders
 //
