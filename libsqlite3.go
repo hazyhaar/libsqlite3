@@ -15,22 +15,26 @@
 //
 //	OS      Arch    SQLite version
 //	------------------------------
-//	darwin  amd64   3.53.4
-//	darwin  arm64   3.53.4
-//	freebsd amd64   3.53.4
-//	freebsd arm64   3.53.4
-//	linux   386     3.53.4
-//	linux   amd64   3.53.4
-//	linux   arm     3.53.4
-//	linux   arm64   3.53.4
-//	linux   loong64 3.53.4
-//	linux   ppc64le 3.53.4
-//	linux   riscv64 3.53.4
-//	linux   s390x   3.53.4
-//	netbsd  amd64   3.53.4
-//	windows 386     3.53.4
-//	windows amd64   3.53.4
-//	windows arm64   3.53.4
+//	darwin     amd64   3.53.4
+//	darwin     arm64   3.53.4
+//	freebsd    386     3.53.4
+//	freebsd    amd64   3.53.4
+//	freebsd    amd64   3.53.4
+//	freebsd    arm     3.53.4
+//	linux      386     3.53.4
+//	linux      amd64   3.53.4
+//	linux      arm     3.53.4
+//	linux      arm64   3.53.4
+//	linux      loong64 3.53.4
+//	linux      ppc64le 3.53.4
+//	linux      riscv64 3.53.4
+//	linux      s390x   3.53.4
+//	netbsd     amd64   3.53.4
+//	openbsd7.8 amd64   3.53.4
+//	openbsd7.8 arm64   3.53.4
+//	windows    386     3.53.4
+//	windows    amd64   3.53.4
+//	windows    arm64   3.53.4
 //
 // # Supported platforms and architectures - Tier 2
 //
@@ -40,14 +44,7 @@
 // guarantees only that the package will build and that at least some tests are
 // passing.
 //
-// WARNING: Not all tests are passing in Tier 2 targets - do NOT use in
-// production. Or at least test thoroughly that your particular workload
-// performs correctly because it is lucky to not use any of the buggy code.
-//
-//	OS         Arch    SQLite version
-//	---------------------------------
-//	openbsd7.8 amd64   3.53.4
-//	openbsd7.8 arm64   3.53.4
+// There are no Tier 2 platforms at the moment
 //
 // # Builders
 //
