@@ -1,0 +1,145 @@
+--- /tmp/gen_opt_a_3402725401/os_unix.c.orig	2026-08-25 11:29:42.786513850 -0700
++++ /tmp/gen_opt_a_3402725401/os_unix.c.mod	2026-08-25 11:29:42.786513850 -0700
+@@ -990,6 +990,35 @@
+ #endif /* SQLITE_LOCK_TRACE */
+ 
+ /*
++** Enable Open File Description (OFD) locking on Linux with automatic
++** one-time fallback to standard POSIX locking if EINVAL is returned.
++** See: https://gitlab.com/cznic/sqlite/-/issues/255
++*/
++#if defined(F_OFD_SETLK)
++static volatile int ofdSupported = 1;
++static int osFcntlOfd(int fd, int cmd, void *arg){
++  if( ofdSupported ){
++    int ofdCmd = cmd;
++    if( cmd==F_SETLK ) ofdCmd = F_OFD_SETLK;
++    else if( cmd==F_SETLKW ) ofdCmd = F_OFD_SETLKW;
++    else if( cmd==F_GETLK ) ofdCmd = F_OFD_GETLK;
++    if( ofdCmd!=cmd ){
++      struct flock *pLock = (struct flock *)arg;
++      pLock->l_pid = 0; /* Required by Linux kernel for F_OFD_* commands */
++      int rc = osFcntl(fd, ofdCmd, arg);
++      if( rc!=(-1) || errno!=EINVAL ){
++        return rc;
++      }
++      ofdSupported = 0;
++    }
++  }
++  return osFcntl(fd, cmd, arg);
++}
++#else
++#define osFcntlOfd osFcntl
++#endif
++
++/*
+ ** Retry ftruncate() calls that fail due to EINTR
+ **
+ ** All calls to ftruncate() within this file should be made through
+@@ -1327,6 +1356,8 @@
+   int nLock;                        /* Number of outstanding file locks */
+   unsigned char eFileLock;          /* One of SHARED_LOCK, RESERVED_LOCK etc. */
+   unsigned char bProcessLock;       /* An exclusive process lock is held */
++  unsigned char bLockIsReadOnly;    /* True if hLock is an O_RDONLY descriptor */
++  int hLock;                        /* File descriptor holding the OFD lock */
+   UnixUnusedFd *pUnused;            /* Unused file descriptors to close */
+   int nRef;                       /* Number of pointers to this structure */
+   unixShmNode *pShmNode;          /* Shared memory associated with this inode */
+@@ -1699,7 +1730,8 @@
+     lock.l_start = RESERVED_BYTE;
+     lock.l_len = 1;
+     lock.l_type = F_WRLCK;
+-    if( osFcntl(pFile->h, F_GETLK, &lock) ){
++    int h = (pFile->pInode && pFile->pInode->hLock) ? pFile->pInode->hLock : pFile->h;
++    if( osFcntlOfd(h, F_GETLK, &lock) ){
+       rc = SQLITE_IOERR_CHECKRESERVEDLOCK;
+       storeLastErrno(pFile, errno);
+     } else if( lock.l_type!=F_UNLCK ){
+@@ -1804,6 +1836,7 @@
+   unixInodeInfo *pInode = pFile->pInode;
+   assert( pInode!=0 );
+   assert( sqlite3_mutex_held(pInode->pLockMutex) );
++  int h = (pInode && pInode->hLock) ? pInode->hLock : pFile->h;
+   if( (pFile->ctrlFlags & (UNIXFILE_EXCL|UNIXFILE_RDONLY))==UNIXFILE_EXCL ){
+     if( pInode->bProcessLock==0 ){
+       struct flock lock;
+@@ -1812,7 +1845,7 @@
+       lock.l_start = SHARED_FIRST;
+       lock.l_len = SHARED_SIZE;
+       lock.l_type = F_WRLCK;
+-      rc = osSetPosixAdvisoryLock(pFile->h, &lock, pFile);
++      rc = osFcntlOfd(h, F_SETLK, &lock);
+       if( rc<0 ) return rc;
+       pInode->bProcessLock = 1;
+       pInode->nLock++;
+@@ -1824,10 +1857,10 @@
+     if( pFile->bBlockOnConnect && pLock->l_type==F_RDLCK
+      && pLock->l_start==SHARED_FIRST && pLock->l_len==SHARED_SIZE
+     ){
+-      rc = osFcntl(pFile->h, F_SETLKW, pLock);
++      rc = osFcntlOfd(h, F_SETLKW, pLock);
+     }else
+ #endif
+-    rc = osSetPosixAdvisoryLock(pFile->h, pLock, pFile);
++    rc = osFcntlOfd(h, F_SETLK, pLock);
+   }
+   return rc;
+ }
+@@ -1959,6 +1992,22 @@
+     assert( eFileLock==SHARED_LOCK );
+     assert( pFile->eFileLock==0 );
+     assert( pInode->nShared>0 );
++
++    /* If designated locking fd is read-only, migrate to this read-write fd */
++    if( pInode->bLockIsReadOnly && (pFile->ctrlFlags & UNIXFILE_RDONLY)==0 ){
++      lock.l_type = F_RDLCK;
++      lock.l_whence = SEEK_SET;
++      lock.l_start = SHARED_FIRST;
++      lock.l_len = SHARED_SIZE;
++      if( unixFileLock(pFile, &lock)==0 ){
++        lock.l_type = F_UNLCK;
++        lock.l_start = lock.l_len = 0L;
++        osFcntlOfd(pInode->hLock, F_SETLK, &lock);
++        pInode->hLock = pFile->h;
++        pInode->bLockIsReadOnly = 0;
++      }
++    }
++
+     pFile->eFileLock = SHARED_LOCK;
+     pInode->nShared++;
+     pInode->nLock++;
+@@ -1983,6 +2032,10 @@
+       if( rc!=SQLITE_BUSY ){
+         storeLastErrno(pFile, tErrno);
+       }
++      if( pInode->nLock==0 ){
++        pInode->hLock = 0;
++        pInode->bLockIsReadOnly = 0;
++      }
+       goto end_lock;
+     }else if( eFileLock==EXCLUSIVE_LOCK ){
+       pFile->eFileLock = PENDING_LOCK;
+@@ -1994,6 +2047,10 @@
+   /* If control gets to this point, then actually go ahead and make
+   ** operating system calls for the specified lock.
+   */
++  if( pInode->nLock==0 || pInode->hLock==0 ){
++    pInode->hLock = pFile->h;
++    pInode->bLockIsReadOnly = (pFile->ctrlFlags & UNIXFILE_RDONLY) != 0;
++  }
+   if( eFileLock==SHARED_LOCK ){
+     assert( pInode->nShared==0 );
+     assert( pInode->eFileLock==0 );
+@@ -2263,7 +2320,11 @@
+     */
+     pInode->nLock--;
+     assert( pInode->nLock>=0 );
+-    if( pInode->nLock==0 ) closePendingFds(pFile);
++    if( pInode->nLock==0 ){
++      pInode->hLock = 0;
++      pInode->bLockIsReadOnly = 0;
++      closePendingFds(pFile);
++    }
+   }
+ 
+ end_unlock:
