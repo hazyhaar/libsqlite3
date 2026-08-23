@@ -1,5 +1,19 @@
 # Changelog
 
+ * 2026-08-23: testfixture: build with -DCONFIG_SLOWDOWN_FACTOR=10.0 (generator.go), upstream's
+   knob for slow test builds. like-14.{1,2} time one GLOB resp. LIKE query with many wildcards and
+   fail above 1000*$sqlite_options(configslower) microseconds - the test prints "ms", but Tcl's
+   [time] reports microseconds - and on the emulated builders the transpiled testfixture needs
+   300-1500 us for that single round trip (linux/loong64 QEMU VM, measured in isolation, vs.
+   135-728 us for native C on the same VM; the failing builder run saw 597 us for the GLOB and
+   1500 us for the LIKE variant), so the stock 1 ms limit is a coin toss that already had to be
+   waived on freebsd/arm and linux/s390x. 10x keeps the test meaningful: it guards against the
+   exponential pattern matcher of SQLite < 3.16.0, which needs ~75 ms per query natively on an
+   amd64 desktop (3.15.2) where the fixed one needs ~20 us. Takes effect on the next per-target
+   regeneration: linux/amd64 regenerated here, and the all_test.go waivers for freebsd/arm and
+   linux/s390x are dropped in favour of regenerating those two (their internal/autogen/*.mod
+   snapshots are blanked).
+
  * 2026-08-03: Upgrade to SQLite 3.53.4. It carries upstream's own fix for the super-journal
    rollback corruption reported from here on 2026-07-20
    (https://sqlite.org/forum/info/2026-07-20T18:27:00Z): check-in bf70dadc2d455844 applies the

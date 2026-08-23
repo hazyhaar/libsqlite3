@@ -293,23 +293,19 @@ func TestTclTest(t *testing.T) {
 		// it. Raising vm.max_map_count on the host is the alternative to this
 		// entry.
 		blacklist["bigsort.test"] = struct{}{}
-
-		// like-14.2 is the same 1 s timing assertion as on freebsd/arm below,
-		// but here it is load-dependent rather than hard: run on its own on
-		// the builder it takes 564 ms against the 1000 ms limit (measured
-		// 2026-08-18), yet it failed on both full-suite runs that got far
-		// enough to report (2026-07-29, 08-15), where testfixture has been
-		// running for many hours by the time like.test comes up. Correctness
-		// is not in question: the body asserts nothing but elapsed wall time,
-		// it never inspects the query result. Same bucket as freebsd/arm.
-		knownCFailures["like-14.2"] = struct{}{}
-	case "freebsd/arm":
-		// like-14.2 asserts a LIKE-optimization query completes in under 1s.
-		// On the emulated 32-bit arm builder the query is correct but slow
-		// (~1096ms > 1000ms threshold), so the timing assertion fails. Not a
-		// correctness issue.
-		knownCFailures["like-14.2"] = struct{}{}
 	}
+
+	// like-14.{1,2} - one GLOB resp. LIKE query with many wildcards, timed
+	// once and failed above 1000*$sqlite_options(configslower) microseconds
+	// (the test prints "ms", but Tcl's [time] reports microseconds) - used to
+	// be waived here for freebsd/arm and linux/s390x, where the transpiled
+	// testfixture on an emulated or slow builder needs 300-1500 us for that
+	// single round trip and the 1 ms limit is a coin toss. Since 2026-08-23
+	// generator.go builds testfixture with -DCONFIG_SLOWDOWN_FACTOR=10.0,
+	// upstream's knob for slow builds, which lifts the limit to 10 ms. A
+	// like-14 failure on some target therefore means its
+	// internal/testfixture/ccgo_<goos>_<goarch>.go predates that: regenerate
+	// it (blank internal/autogen/<goos>_<goarch>.mod), do not waive it.
 
 	if err := setMaxOpenFiles(1024); err != nil { // Avoid misc7.test hanging for a long time.
 		t.Fatal(err)

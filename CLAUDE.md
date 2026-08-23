@@ -202,9 +202,17 @@ Before chasing a Tcl failure, check the tables at the top of `all_test.go`:
 - `expectedFailures` — `dbstatus-4.*`, `malloc5-6.2.*`, `values-11.*`; memory accounting differs
   from C because escaped locals share the heap and TLS stacks live until `TLS.Close`. Plus 18
   `dbstatus-2.*` entries added for windows in `init()`.
-- `knownCFailures` — fails in upstream C too: `snapshot_fault-4.1.1` (linux/ppc64le), `like-14.2`
-  (freebsd/arm — a 1 s timing assertion on an emulated builder; also linux/s390x, where it clears
-  the limit in isolation at 564 ms but trips inside the ~20 h full run).
+- `knownCFailures` — fails in upstream C too: `snapshot_fault-4.1.1` (linux/ppc64le).
+- `like-14.{1,2}` is **not** in either table any more, don't put it back. It is a **1000 µs**
+  single-shot timing assertion (the test prints "ms", but Tcl's `[time]` reports microseconds) on
+  one GLOB/LIKE round trip through the Tcl binding, prepare included — a coin toss on the emulated
+  builders (freebsd/arm ~1096 µs; linux/loong64 300–1500 µs run to run; s390x 564 µs alone but over
+  the limit inside the ~20 h full run), which is why it used to be waived for freebsd/arm and
+  linux/s390x. Since 2026-08-23 `generator.go` builds testfixture with
+  `-DCONFIG_SLOWDOWN_FACTOR=10.0` (upstream's knob for slow builds, → `$sqlite_options(configslower)`
+  → a 10 ms limit). It takes effect per target as its `internal/testfixture/ccgo_*.go` is
+  regenerated, so a `like-14` red means that target's testfixture predates it: blank its
+  `internal/autogen/<goos>_<goarch>.mod` to regenerate it.
 - per-target blacklists in `TestTclTest` — `bigsort.test`
   (linux/{arm64,loong64,riscv64,ppc64le,s390x}), `symlink2.test`/`readonly.test`/`snapshot3.test`
   on windows; `TestConcurrentProcesses` is skipped on linux/s390x (VM too slow).

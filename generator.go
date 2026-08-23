@@ -338,6 +338,25 @@ go work use \
 			config = append(config, m64Double)
 		}
 		config = append(config,
+			// like-14.{1,2} time a single LIKE/GLOB query with many wildcards
+			// and fail it above 1000*$sqlite_options(configslower) microseconds
+			// (the test prints "ms", but Tcl's [time] reports microseconds).
+			// Upstream scales that limit for slow builds with this macro: 5.0
+			// in their sanitizer configuration, 8.0 under valgrind. The
+			// transpiled testfixture is such a slow build, and it also runs on
+			// emulated builders: on the linux/loong64 QEMU VM (2026-08-23) the
+			// single round trip the test times costs 300-1500 us in isolation
+			// (a fresh prepare is ~100 us at the median, but the first
+			// execution of a statement and ordinary scheduler/GC hiccups add
+			// milliseconds), against 135-728 us for native C on the same VM
+			// and 16-24 us on an amd64 desktop. So the stock limit is a coin
+			// toss there, and before this it had to be waived for freebsd/arm
+			// and linux/s390x in all_test.go. The assertion guards against the
+			// exponential pattern matcher SQLite had before 3.16.0, which needs
+			// ~75 ms per query (3.15.2, native, on the same desktop), ie. 3000x
+			// more, so an order of magnitude of headroom keeps it meaningful
+			// everywhere.
+			"-DCONFIG_SLOWDOWN_FACTOR=10.0",
 			"-DHAVE_USLEEP",
 			"-DLONGDOUBLE_TYPE=double",
 			"-DNDEBUG",
@@ -444,7 +463,7 @@ go work use \
 					"-exec", "make", "-j", j,
 					"BEXE=",
 
-					"CFLAGS=-mlong-double-64 -DLONGDOUBLE_TYPE=double -DSQLITE_WITHOUT_ZONEMALLOC -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_OS_WIN=1 -DSQLITE_OS_UNIX=0 -D_MSC_VER=1 -DSQLITE_OMIT_SEH",
+					"CFLAGS=-mlong-double-64 -DCONFIG_SLOWDOWN_FACTOR=10.0 -DLONGDOUBLE_TYPE=double -DSQLITE_WITHOUT_ZONEMALLOC -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_OS_WIN=1 -DSQLITE_OS_UNIX=0 -D_MSC_VER=1 -DSQLITE_OMIT_SEH",
 					"TOP=../sqlite-src-"+versionTag,
 					"TEXE=.exe",
 					"testfixture.exe",
@@ -466,7 +485,7 @@ go work use \
 					"-exec", "make", "-j", j,
 					"BEXE=",
 
-					"CFLAGS=-mlong-double-64 -DLONGDOUBLE_TYPE=double -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_OS_WIN=1 -DSQLITE_OS_UNIX=0 -D_MSC_VER=1 -DSQLITE_OMIT_SEH",
+					"CFLAGS=-mlong-double-64 -DCONFIG_SLOWDOWN_FACTOR=10.0 -DLONGDOUBLE_TYPE=double -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_OS_WIN=1 -DSQLITE_OS_UNIX=0 -D_MSC_VER=1 -DSQLITE_OMIT_SEH",
 					"TOP=../sqlite-src-"+versionTag,
 					"TEXE=.exe",
 					"testfixture.exe",
