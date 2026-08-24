@@ -156,7 +156,7 @@ func main() {
 	result := "sqlite3.go"
 	util.MustInDir(true, makeRoot, func() (err error) {
 		util.MustShell(true, nil, "sh", "-c", "go mod init example.com/libsqlite3 ; go get modernc.org/libc@v1.75.4 modernc.org/libz@v0.19.1 modernc.org/libtcl8.6@v0.20.0")
-		config := []string{os.Args[0]}
+		config := []string{os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short"}
 		if dev {
 			util.MustShell(true, nil, "sh", "-c", "go work init ; go work use $GOPATH/src/modernc.org/libc $GOPATH/src/modernc.org/libz $GOPATH/src/modernc.org/libtcl8.6")
 			config = append(config,
@@ -419,7 +419,7 @@ go work use \
 			util.MustShell(true, nil, "sh", "-c", "echo '#define HAVE_MALLOC_USABLE_SIZE 1' >> config.h")
 			util.MustShell(true, nil, "sh", "-c", "echo '#define HAVE_MEMORY_H 1' >> config.h")
 		}
-		args := []string{os.Args[0]}
+		args := []string{os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short"}
 		if dev {
 			args = append(args,
 				"-absolute-paths",
@@ -515,7 +515,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"--cpp", xgcc,
 				"--goarch", goarch,
 				"--goos", goos,
@@ -541,7 +541,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"--cpp", xgcc,
 				"--goarch", goarch,
 				"--goos", goos,
@@ -566,7 +566,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"-DNDEBUG",
 				"-DSQLITE_DISABLE_INTRINSIC",
 				"-DSQLITE_ENABLE_DBPAGE_VTAB",
@@ -608,7 +608,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"--cpp", xgcc,
 				"--goarch", goarch,
 				"--goos", goos,
@@ -633,7 +633,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"--cpp", xgcc,
 				"--goarch", goarch,
 				"--goos", goos,
@@ -657,7 +657,7 @@ go work use \
 		if err := ccgo.NewTask(
 			goos, goarch,
 			[]string{
-				os.Args[0],
+				os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short",
 				"-DNDEBUG",
 				"-DSQLITE_DISABLE_INTRINSIC",
 				"-I", makeRoot,
