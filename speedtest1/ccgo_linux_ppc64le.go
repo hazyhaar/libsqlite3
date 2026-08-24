@@ -1,4 +1,4 @@
-// Code generated for linux/ppc64le by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_linux_ppc64le.go -I /tmp/libsqlite3/sqlite-src-3530400 /tmp/libsqlite3/sqlite-src-3530400/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for linux/ppc64le by 'generator -D_GCC_NULLPTR_T -D_Float16=short -D__bf16=short -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_linux_ppc64le.go -I /tmp/libsqlite3/sqlite-src-3530400 /tmp/libsqlite3/sqlite-src-3530400/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build linux && ppc64le
 
