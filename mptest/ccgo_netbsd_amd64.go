@@ -1,4 +1,4 @@
-// Code generated for netbsd/amd64 by 'generator -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -I /tmp/libsqlite3/sqlite-src-3530400 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_netbsd_amd64.go /tmp/libsqlite3/sqlite-src-3530400/mptest/mptest.c -lsqlite3', DO NOT EDIT.
+// Code generated for netbsd/amd64 by 'generator -D_GCC_NULLPTR_T -D_Float16=short -D__bf16=short -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -I /tmp/libsqlite3/sqlite-src-3530400 -ignore-unsupported-alignment -ignore-link-errors -o mptest/ccgo_netbsd_amd64.go /tmp/libsqlite3/sqlite-src-3530400/mptest/mptest.c -lsqlite3', DO NOT EDIT.
 
 //go:build netbsd && amd64
 
