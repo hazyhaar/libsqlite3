@@ -1,4 +1,4 @@
-// Code generated for windows/386 by 'generator --cpp /usr/bin/i686-w64-mingw32-gcc --goarch 386 --goos windows -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_OMIT_SEH -DSQLITE_OS_WIN=1 -I /tmp/libsqlite3/sqlite-src-3530400 -map gcc=i686-w64-mingw32-gcc -o mptest/ccgo_windows_386.go /tmp/libsqlite3/sqlite-src-3530400/mptest/mptest.c -lsqlite3', DO NOT EDIT.
+// Code generated for windows/386 by 'generator -D_GCC_NULLPTR_T -D_Float16=short -D__bf16=short --cpp /usr/bin/i686-w64-mingw32-gcc --goarch 386 --goos windows -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_OMIT_SEH -DSQLITE_OS_WIN=1 -I /tmp/libsqlite3/sqlite-src-3530400 -map gcc=i686-w64-mingw32-gcc -o mptest/ccgo_windows_386.go /tmp/libsqlite3/sqlite-src-3530400/mptest/mptest.c -lsqlite3', DO NOT EDIT.
 
 //go:build windows && 386
 
