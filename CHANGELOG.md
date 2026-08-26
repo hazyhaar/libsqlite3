@@ -1,5 +1,27 @@
 # Changelog
 
+ * 2026-08-26: Linux: database file locks are now Open File Description locks (F_OFD_SETLK*):
+   Nathan Herring's MR !3 (cznic/sqlite#255) plus a fixup commit. POSIX record locks belong to the
+   process, so any close() of an unrelated descriptor of the database file - e.g. an os.File the
+   application opened and closed - silently dropped every lock SQLite held on it; OFD locks belong to
+   the open file description, so that can no longer happen. SQLite's unixInodeInfo refcounting assumes
+   a single lock owner per inode and process, so every kernel lock on an inode goes through one
+   designated descriptor (pInode->hLock, the first locker's; a read-write connection joining at SHARED
+   takes over from a read-only one, because F_WRLCK needs a writable descriptor). Where F_OFD_* is
+   unsupported (EINVAL, kernels before 3.15) and on the other unix targets everything stays upstream's
+   POSIX locking. The fixup on top of the MR: the take-over locked through the old read-only descriptor
+   and then released it, leaving the process without any kernel lock for the rest of the read
+   transaction (an external writer could commit under two open read transactions); the designated
+   descriptor was recorded before the lock was taken, so a SHARED attempt failing after its PENDING
+   lock had succeeded left a stale fd behind (SQLITE_IOERR_LOCK, or a PENDING-byte lock leaked onto
+   whatever file reused the fd number); and none of that machinery was gated on OFD locks being in
+   effect, so the take-over also ran on darwin/*BSD, where a whole-file F_UNLCK through any descriptor
+   releases all of the process's locks. generator.go keeps libc at v1.75.5 (= go.mod; the tag that has
+   F_OFD_* for every linux target) and every internal/autogen/*.mod snapshot is blanked, so the farm
+   regenerates all 20 targets rather than only the eight linux ones: the code above is compiled on
+   every unix target and any target-specific mismatch should show up now rather than at the next
+   unrelated dependency bump. Regression tests for the take-over: cznic/sqlite!136.
+
  * 2026-08-23: testfixture: build with -DCONFIG_SLOWDOWN_FACTOR=10.0 (generator.go), upstream's
    knob for slow test builds. like-14.{1,2} time one GLOB resp. LIKE query with many wildcards and
    fail above 1000*$sqlite_options(configslower) microseconds - the test prints "ms", but Tcl's
