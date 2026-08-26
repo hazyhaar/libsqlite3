@@ -139,6 +139,8 @@ func main() {
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_issue173.patch"))
 	// https://gitlab.com/cznic/libsqlite3/-/issues/1
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "issue1.patch"))
+	// https://gitlab.com/cznic/sqlite/-/issues/255
+	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_issue255.patch"))
 
 	// C-race, enforce atomic access. NB: the 0,/.../ address matches nothing in
 	// current SQLite, so this deliberately applies to every "int isInit"
@@ -155,7 +157,7 @@ func main() {
 	ilibtcl := filepath.Join(cwd, "..", "libtcl8.6", "include", goos, goarch)
 	result := "sqlite3.go"
 	util.MustInDir(true, makeRoot, func() (err error) {
-		util.MustShell(true, nil, "sh", "-c", "go mod init example.com/libsqlite3 ; go get modernc.org/libc@v1.75.5 modernc.org/libz@v0.19.1 modernc.org/libtcl8.6@v0.20.0")
+		util.MustShell(true, nil, "sh", "-c", "go mod init example.com/libsqlite3 ; go get modernc.org/libc@v1.75.4 modernc.org/libz@v0.19.1 modernc.org/libtcl8.6@v0.20.0")
 		config := []string{os.Args[0], "-D_GCC_NULLPTR_T", "-D_Float16=short", "-D__bf16=short"}
 		if dev {
 			util.MustShell(true, nil, "sh", "-c", "go work init ; go work use $GOPATH/src/modernc.org/libc $GOPATH/src/modernc.org/libz $GOPATH/src/modernc.org/libtcl8.6")
@@ -310,6 +312,8 @@ func main() {
 	util.MustShell(true, nil, "unzip", "-q", archive2Path, "-d", tempDir)
 	// https://gitlab.com/cznic/sqlite/-/issues/173
 	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "os_unix.c"), filepath.Join("internal", "sqlite_issue173.patch2"))
+	// https://gitlab.com/cznic/sqlite/-/issues/255
+	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "os_unix.c"), filepath.Join("internal", "sqlite_issue255.patch2"))
 	// https://gitlab.com/cznic/libsqlite3/-/issues/1
 	util.MustShell(true, nil, "patch", filepath.Join(makeRoot, "src", "pcache1.c"), filepath.Join("internal", "issue1.patch2"))
 	mustCopyDir(makeRoot, filepath.Join("internal", "overlay", "generator"), nil, false)
@@ -320,7 +324,7 @@ func main() {
 		util.MustShell(true, nil, "sh", "-c", `
 go mod init example.com/libsqlite3
 go get \
-	modernc.org/libc@v1.75.5 \
+	modernc.org/libc@v1.75.4 \
 	modernc.org/libtcl8.6@v0.20.0 \
 	modernc.org/libz@v0.19.1 \
 `)
