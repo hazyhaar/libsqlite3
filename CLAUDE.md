@@ -54,12 +54,12 @@ override example: `generator.go` `sed`-deletes `_guess_number_of_cores` from `te
 make editor              # the fast loop: gofmt -l -s -w . + go test -c + go build ./... + build generator
 make all                 # editor + golint + staticcheck (no config, defaults)
 make test                # go test -v -timeout 24h — everything; takes hours
-make tcltest             # only TestTcl*
-make tcltest_ofd         # same with MODERNC_SQLITE_OFD_LOCK=1 (opt-in OFD locks, linux)
-make extraquick          # TestTcl with the "extraquick" permutation
+make tcltest             # TestTclTest (full permutation) + TestTclTestOFD (lock subset, OFD mode)
+make tcltest_ofd         # the full permutation with MODERNC_SQLITE_OFD_LOCK=1 (opt-in OFD locks, linux)
+make extraquick          # TestTclTest with the "extraquick" permutation
 make locktest            # the 42 lock/WAL Tcl files in both locking modes, ~30 s each
 make mptest              # only TestConcurrentProcesses
-make mptest_ofd          # same with MODERNC_SQLITE_OFD_LOCK=1
+make mptest_ofd          # only TestConcurrentProcessesOFD (mptest with the OFD locks on)
 make speedtest1          # go run ./speedtest1
 make build_all_targets   # cross build + test-compile every target, with -tags=none and -tags=dmesg
 make work                # go.work over sibling cc/v4, ccgo/v3, ccgo/v4, libc, libtcl8.6, libz
@@ -74,6 +74,7 @@ Narrowing the test run (flags are defined in `all_test.go`):
 ```sh
 go test -v -timeout 24h -run TestTclTest -suite=extraquick   # permutation from internal/test/permutations.test
 go test -v -run TestTclTest -suite="veryquick fts5*"         # extra words are passed through to permutations.test
+go test -v -run 'TestTclTest$' -suite=locks                  # "full" + the 42-file lock/WAL subset (lockTests in all_test.go)
 go test -v -run TestTclTest -start=walrestart.test -maxerror=1
 go test -v -run TestConcurrentProcesses                      # builds ./mptest, runs crash01/multiwrite01 × journal modes
 go test -v -run TestIssueSqlite173                           # re-execs itself with -race -inner
@@ -213,7 +214,11 @@ which any `close()` of an unrelated descriptor of the file silently drops. Facts
 - **Acceptance gate:** `make locktest` (42 lock/WAL Tcl files, both modes, ~30 s each on a desktop),
   `make mptest_ofd`, and the scenario program from the MR !3 review (`escape`, `exclro`, `stale`,
   `stale2`, `rorw`, `interleave`, `rogue`, `excl`, `pending`) in default, env-var, setter and
-  forced-POSIX mode. With the gate off the farm covers only the POSIX path.
+  forced-POSIX mode. On the farm, `TestTclTestOFD` (the subset) and `TestConcurrentProcessesOFD`
+  (mptest) run with the switch on, linux only, `t.Setenv` — the second mode costs ~1.3% of the Tcl
+  run plus one more mptest, which is why the full permutation is *not* run twice there
+  (`make tcltest_ofd` does that by hand). Only the subset can tell the modes apart: everything
+  else opens one connection, takes SHARED and never sees a difference.
 
 ## Race/threading fixes baked into generation
 

@@ -23,9 +23,13 @@
    once one has succeeded a later EINVAL is returned as the I/O error it is instead of switching
    the process to POSIX mode under OFD locks that a POSIX F_UNLCK cannot release. New Makefile
    targets: `make locktest` runs the lock/WAL subset of the Tcl suite in both modes, `make
-   tcltest_ofd` and `make mptest_ofd` the Tcl suite resp. mptest with OFD locks. linux/amd64
-   regenerated here; every internal/autogen/*.mod snapshot blanked again so the farm regenerates
-   the ten targets that had already picked up the 2026-08-26 inputs.
+   tcltest_ofd` and `make mptest_ofd` the Tcl suite resp. mptest with OFD locks. On the builders
+   TestTclTestOFD and TestConcurrentProcessesOFD (linux only) run the lock/WAL subset - -suite=locks,
+   the only part of the suite that can tell the two locking modes apart - resp. mptest with
+   MODERNC_SQLITE_OFD_LOCK=1, so every linux target covers both modes at the cost of ~1.3% of the Tcl
+   run plus one more mptest. linux/amd64 regenerated here; every internal/autogen/*.mod snapshot
+   blanked again so the farm regenerates the ten targets that had already picked up the 2026-08-26
+   inputs.
 
  * 2026-08-26: Linux: database file locks are now Open File Description locks (F_OFD_SETLK*)
    (opt-in and off by default since 2026-08-27, see above):

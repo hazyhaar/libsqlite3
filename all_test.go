@@ -31,7 +31,7 @@ var (
 	oQuiet    = flag.Bool("q", true, "reduce output")
 	oStrace   = flag.Bool("strace", false, "strace TclTest")
 	oStart    = flag.String("start", "", "-start=[$permutation:]$testfile")
-	oSuite    = flag.String("suite", "full", "suite [test-file] to run")
+	oSuite    = flag.String("suite", "full", "suite [test-file...] to run; \"locks\" = the lock/WAL subset, see lockTests")
 	oVerbose  = flag.String("verbose", "0", `"0", "1" or "file"`)
 	oXTags    = flag.String("xtags", "", "passed as -tags to go build of testfixture")
 
@@ -55,6 +55,26 @@ var (
 		"values-11.1": {},
 	}
 	knownCFailures = map[string]struct{}{}
+
+	// lockTests is the subset of the Tcl suite where a change to the unix
+	// VFS's locking is observable: several connections and processes on one
+	// file, read-only descriptors, unix-excl, WAL and the journal modes, busy
+	// handling. It is the acceptance gate for VFS locking changes (the MR !3
+	// rounds, cznic/sqlite#255) and what TestTclTestOFD runs with the opt-in
+	// OFD locks on. ~30 s on a desktop, ~1.3% of the full permutation.
+	lockTests = []string{
+		"unixexcl.test",
+		"lock.test", "lock2.test", "lock3.test", "lock4.test", "lock5.test", "lock6.test", "lock7.test",
+		"shared.test", "shared2.test", "shared3.test", "shared4.test", "shared6.test", "shared7.test",
+		"shared8.test", "shared9.test", "sharedA.test", "sharedB.test",
+		"wal.test", "wal2.test", "wal3.test", "wal4.test", "wal5.test", "wal6.test", "wal7.test", "wal8.test",
+		"wal9.test", "walro.test", "walro2.test", "walshared.test",
+		"exclusive.test", "exclusive2.test",
+		"busy.test",
+		"readonly.test",
+		"journal1.test", "journal2.test", "journal3.test",
+		"pager1.test", "pager2.test", "pager3.test", "pager4.test",
+	}
 
 	goos   = runtime.GOOS
 	goarch = runtime.GOARCH
@@ -109,6 +129,23 @@ func TestMain(m *testing.M) {
 }
 
 func TestConcurrentProcesses(t *testing.T) {
+	testConcurrentProcesses(t)
+}
+
+// TestConcurrentProcessesOFD is TestConcurrentProcesses with the opt-in OFD
+// locking switched on (MODERNC_SQLITE_OFD_LOCK=1, linux only). The switch
+// changes only the unix VFS's lock path, so this and TestTclTestOFD are what
+// keeps the second locking mode covered on every linux builder.
+func TestConcurrentProcessesOFD(t *testing.T) {
+	if goos != "linux" {
+		t.Skipf("OFD locks are linux only, MODERNC_SQLITE_OFD_LOCK is a no-op on %s", target)
+	}
+
+	t.Setenv("MODERNC_SQLITE_OFD_LOCK", "1")
+	testConcurrentProcesses(t)
+}
+
+func testConcurrentProcesses(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping test in short mode")
 	}
@@ -258,6 +295,27 @@ outer:
 var blacklist = []string{}
 
 func TestTclTest(t *testing.T) {
+	testTcl(t, *oSuite)
+}
+
+// TestTclTestOFD runs the lock/WAL subset of the Tcl suite (lockTests, ie.
+// -suite=locks) with the opt-in OFD locking switched on
+// (MODERNC_SQLITE_OFD_LOCK=1, linux only). Only that subset can tell the two
+// locking modes apart, so the second mode costs every linux builder ~1.3% of
+// the full permutation rather than a second full run; `make tcltest_ofd` is
+// the full suite in OFD mode, by hand.
+func TestTclTestOFD(t *testing.T) {
+	if goos != "linux" {
+		t.Skipf("OFD locks are linux only, MODERNC_SQLITE_OFD_LOCK is a no-op on %s", target)
+	}
+
+	t.Setenv("MODERNC_SQLITE_OFD_LOCK", "1")
+	testTcl(t, "locks")
+}
+
+// testTcl runs test/all.test (suite == "") or test/permutations.test with
+// suite split into its arguments; "locks" stands for "full" plus lockTests.
+func testTcl(t *testing.T, suite string) {
 	blacklist := map[string]struct{}{}
 	switch runtime.GOOS {
 	case "windows":
@@ -392,12 +450,15 @@ func TestTclTest(t *testing.T) {
 	t.Logf("MODERNC_SQLITE_OFD_LOCK=%q", os.Getenv("MODERNC_SQLITE_OFD_LOCK"))
 
 	var args []string
-	switch s := *oSuite; s {
+	switch suite {
 	case "":
 		args = []string{filepath.Join(tests, "all.test")}
 		trc("%q", args)
+	case "locks":
+		args = append([]string{filepath.Join(tests, "permutations.test"), "full"}, lockTests...)
+		trc("%q", args)
 	default:
-		a := strings.Split(s, " ")
+		a := strings.Split(suite, " ")
 		args = append([]string{filepath.Join(tests, "permutations.test")}, a...)
 		trc("%q", args)
 	}

@@ -62,28 +62,23 @@ dev: download
 	grep $(GREP) /tmp/ccgo.log || true
 
 extraquick:
-	go test -v -timeout 24h -run Tcl -verbose=1 -suite=extraquick
+	go test -v -timeout 24h -run 'TestTclTest$$' -verbose=1 -suite=extraquick
 
-# The lock/WAL subset of the Tcl suite - the acceptance gate for VFS locking
-# changes - in both locking modes: upstream's POSIX record locks (the default)
-# and, on linux, the opt-in OFD locks (MODERNC_SQLITE_OFD_LOCK, see CHANGELOG.md
-# 2026-08-27). About 30 s per mode on a desktop.
-LOCKTESTS = unixexcl.test lock.test lock2.test lock3.test lock4.test lock5.test lock6.test \
-	lock7.test shared.test shared2.test shared3.test shared4.test shared6.test shared7.test \
-	shared8.test shared9.test sharedA.test sharedB.test wal.test wal2.test wal3.test wal4.test \
-	wal5.test wal6.test wal7.test wal8.test wal9.test walro.test walro2.test walshared.test \
-	exclusive.test exclusive2.test busy.test readonly.test journal1.test journal2.test \
-	journal3.test pager1.test pager2.test pager3.test pager4.test
-
+# The lock/WAL subset of the Tcl suite (lockTests in all_test.go) - the
+# acceptance gate for VFS locking changes - in both locking modes: upstream's
+# POSIX record locks (the default) and, on linux, the opt-in OFD locks
+# (MODERNC_SQLITE_OFD_LOCK, see CHANGELOG.md 2026-08-27). ~30 s per mode on a
+# desktop. The first half clears the variable so an exported one cannot turn
+# both halves into OFD runs.
 locktest:
-	go test -v -timeout 24h -run TestTclTest -suite="full $(LOCKTESTS)"
-	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestTclTest -suite="full $(LOCKTESTS)"
+	MODERNC_SQLITE_OFD_LOCK= go test -v -timeout 24h -run 'TestTclTest$$' -suite=locks
+	go test -v -timeout 24h -run TestTclTestOFD
 
 mptest:
-	go test -v -timeout 24h -run TestConcurrentProcesses
+	go test -v -timeout 24h -run 'TestConcurrentProcesses$$'
 
 mptest_ofd:
-	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestConcurrentProcesses
+	go test -v -timeout 24h -run TestConcurrentProcessesOFD
 
 speedtest1:
 	go run ./speedtest1
@@ -92,7 +87,7 @@ tcltest:
 	go test -v -timeout 24h -run TestTcl
 
 tcltest_ofd:
-	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestTcl
+	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run 'TestTclTest$$'
 
 test:
 	go test -v -timeout 24h
