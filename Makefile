@@ -67,9 +67,9 @@ extraquick:
 # The lock/WAL subset of the Tcl suite (lockTests in all_test.go) - the
 # acceptance gate for VFS locking changes - in both locking modes: upstream's
 # POSIX record locks (the default) and, on linux, the opt-in OFD locks
-# (MODERNC_SQLITE_OFD_LOCK, see CHANGELOG.md 2026-08-27). ~30 s per mode on a
-# desktop. The first half clears the variable so an exported one cannot turn
-# both halves into OFD runs.
+# (MODERNC_SQLITE_OFD_LOCK, see CHANGELOG.md 2026-08-27). ~3 min per mode,
+# mostly walthread.test's fixed 20-second runs. The first half clears the
+# variable so an exported one cannot turn both halves into OFD runs.
 locktest:
 	MODERNC_SQLITE_OFD_LOCK= go test -v -timeout 24h -run 'TestTclTest$$' -suite=locks
 	go test -v -timeout 24h -run TestTclTestOFD

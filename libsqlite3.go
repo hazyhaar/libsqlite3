@@ -54,9 +54,12 @@
 // file. This is opt-in and process-wide: set the environment variable
 // MODERNC_SQLITE_OFD_LOCK=1 before the process opens its first database file,
 // or call Xmodernc_ofd_locking(tls, 1) before that point. The function returns
-// the previous setting, or -1 where OFD locks are not available; a negative
-// argument only queries. It exists on every unix target and not on windows.
-// See CHANGELOG.md (2026-08-27) and https://gitlab.com/cznic/sqlite/-/issues/255.
+// the previous setting; -1 where OFD locks are not available; -2 when the
+// setting can no longer be changed because the process has already attempted
+// a lock - the kind of lock cannot change under a held one, so it is frozen
+// from the first lock until Xsqlite3_shutdown. A negative argument only
+// queries. It exists on every unix target and not on windows. See
+// CHANGELOG.md (2026-08-27) and https://gitlab.com/cznic/sqlite/-/issues/255.
 //
 // # Builders
 //

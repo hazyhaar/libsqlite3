@@ -9,7 +9,10 @@
    testfixture, mptest and anything else linking the library pick it up without any Go plumbing -
    or with the new Xmodernc_ofd_locking(tls, 1), which overrides the environment and returns the
    previous setting: -1 means OFD locks are not available (every unix target but linux, or a linux
-   kernel that rejected F_OFD_*), a negative argument only queries. The function exists on every
+   kernel that rejected F_OFD_*), -2 that the setting is frozen because the process has already
+   attempted a lock - the kind of lock in use cannot change under a held one, a POSIX F_UNLCK does
+   not release an OFD lock and vice versa, so a late flip would strand every lock held; the freeze
+   lifts at sqlite3_shutdown() - and a negative argument only queries. The function exists on every
    unix target and not on windows, so the Go side needs one unix file and one windows stub. The
    switch is process-wide on purpose, not a per-database option: POSIX and OFD locks are different
    owners even inside one process, so all connections to one file must use the same kind. Two
@@ -21,13 +24,20 @@
    with the guard darwin and the BSDs get upstream's locking and export only the -1 returning
    setter. And the EINVAL fallback is latched: it can only happen on the very first OFD fcntl();
    once one has succeeded a later EINVAL is returned as the I/O error it is instead of switching
-   the process to POSIX mode under OFD locks that a POSIX F_UNLCK cannot release. New Makefile
+   the process to POSIX mode under OFD locks that a POSIX F_UNLCK cannot release. Database-file
+   locks go through the OFD wrapper and no longer through osSetPosixAdvisoryLock(), which only the
+   -shm locks use; that is the same call today, but with SQLITE_ENABLE_SETLK_TIMEOUT it would drop
+   the blocking-lock timeout for the database file, so the patch refuses to compile with that
+   option until it is revisited. New Makefile
    targets: `make locktest` runs the lock/WAL subset of the Tcl suite in both modes, `make
    tcltest_ofd` and `make mptest_ofd` the Tcl suite resp. mptest with OFD locks. On the builders
    TestTclTestOFD and TestConcurrentProcessesOFD (linux only) run the lock/WAL subset - -suite=locks,
-   the only part of the suite that can tell the two locking modes apart - resp. mptest with
-   MODERNC_SQLITE_OFD_LOCK=1, so every linux target covers both modes at the cost of ~1.3% of the Tcl
-   run plus one more mptest. linux/amd64 regenerated here; every internal/autogen/*.mod snapshot
+   45 files, the only part of the suite that can tell the two locking modes apart - resp. mptest with
+   MODERNC_SQLITE_OFD_LOCK=1, so every linux target covers both modes at the cost of a few minutes
+   (walthread.test's cases run for a fixed 20 s each) plus one more mptest; TestOFDLocking is their
+   positive control: it observes in /proc/locks
+   that the variable selects OFD resp. POSIX kernel locks and that only the former survive a
+   close() of a stray descriptor. linux/amd64 regenerated here; every internal/autogen/*.mod snapshot
    blanked again so the farm regenerates the ten targets that had already picked up the 2026-08-26
    inputs.
 

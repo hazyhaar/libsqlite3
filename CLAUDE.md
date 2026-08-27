@@ -57,7 +57,7 @@ make test                # go test -v -timeout 24h — everything; takes hours
 make tcltest             # TestTclTest (full permutation) + TestTclTestOFD (lock subset, OFD mode)
 make tcltest_ofd         # the full permutation with MODERNC_SQLITE_OFD_LOCK=1 (opt-in OFD locks, linux)
 make extraquick          # TestTclTest with the "extraquick" permutation
-make locktest            # the 42 lock/WAL Tcl files in both locking modes, ~30 s each
+make locktest            # the 45 lock/WAL Tcl files in both locking modes, ~3 min each (walthread's fixed 20-s runs)
 make mptest              # only TestConcurrentProcesses
 make mptest_ofd          # only TestConcurrentProcessesOFD (mptest with the OFD locks on)
 make speedtest1          # go run ./speedtest1
@@ -74,7 +74,7 @@ Narrowing the test run (flags are defined in `all_test.go`):
 ```sh
 go test -v -timeout 24h -run TestTclTest -suite=extraquick   # permutation from internal/test/permutations.test
 go test -v -run TestTclTest -suite="veryquick fts5*"         # extra words are passed through to permutations.test
-go test -v -run 'TestTclTest$' -suite=locks                  # "full" + the 42-file lock/WAL subset (lockTests in all_test.go)
+go test -v -run 'TestTclTest$' -suite=locks                  # "full" + the 45-file lock/WAL subset (lockTests in all_test.go)
 go test -v -run TestTclTest -start=walrestart.test -maxerror=1
 go test -v -run TestConcurrentProcesses                      # builds ./mptest, runs crash01/multiwrite01 × journal modes
 go test -v -run TestIssueSqlite173                           # re-execs itself with -race -inner
@@ -194,10 +194,13 @@ which any `close()` of an unrelated descriptor of the file silently drops. Facts
 - **Off by default.** `unixOfdActive()` = `ofdEnabled && ofdSupported`. `ofdEnabled` is settled once,
   by `ofdInitOnce()` from `sqlite3_os_init()` reading `MODERNC_SQLITE_OFD_LOCK` (non-empty, not
   starting with `0`), or by `modernc_ofd_locking(int)` → `Xmodernc_ofd_locking`, which overrides the
-  environment, returns the previous value (`-1` = unavailable; a negative argument only queries) and
-  must be called before the first database file is opened. Process-wide by kernel fact: POSIX and
-  OFD locks from the same process are different owners and conflict, so a per-DSN switch would mean
-  mixed-mode inodes.
+  environment and returns the previous value (`-1` = unavailable; `-2` = frozen; a negative
+  argument only queries). **Frozen:** `ofdFrozen` is set at the top of `osFcntlOfd()`, i.e. at the
+  first lock attempt of either kind, and cleared in `sqlite3_os_end()`; while set the setter refuses
+  to change the value (a flip under a held lock strands it — a POSIX `F_UNLCK` does not release an
+  OFD lock and vice versa; the sqlite side measured three orphaned locks and an unwritable file from
+  one late call). Process-wide by kernel fact: POSIX and OFD locks from the same process are
+  different owners and conflict, so a per-DSN switch would mean mixed-mode inodes.
 - **Guard is `defined(F_OFD_SETLK) && defined(__linux__)`, both halves needed.** macOS has had
   `F_OFD_*` since 10.13 and darwin transpiles against the host SDK, so `F_OFD_SETLK` alone pulled the
   whole path into `ccgo_darwin_*.go`, where libc's `Xfcntl64` panics on cmd 90 (2026-08-27 darwin-m1
@@ -211,14 +214,24 @@ which any `close()` of an unrelated descriptor of the file silently drops. Facts
 - **EINVAL fallback is latched** (`ofdConfirmed`): only the very first OFD `fcntl()` may flip the
   process to POSIX mode; a later EINVAL is returned as an I/O error, since a POSIX `F_UNLCK` cannot
   release an OFD lock already held.
-- **Acceptance gate:** `make locktest` (42 lock/WAL Tcl files, both modes, ~30 s each on a desktop),
+- **Database-file locks bypass `osSetPosixAdvisoryLock()`** (only the `-shm` locks still use it).
+  Identical today, but with `SQLITE_ENABLE_SETLK_TIMEOUT` the database file would lose the
+  blocking-lock timeout, so the patch carries an `#error` tripwire for that option. Neither the
+  library nor testfixture is built with it (no `_osSetPosixAdvisoryLock` function, no `FiBusyTimeout`
+  field in the generated Go).
+- **Acceptance gate:** `make locktest` (45 lock/WAL Tcl files, both modes, ~3 min each — walthread's
+  cases run for a fixed 20 s, the other 44 files take ~30 s on a desktop),
   `make mptest_ofd`, and the scenario program from the MR !3 review (`escape`, `exclro`, `stale`,
-  `stale2`, `rorw`, `interleave`, `rogue`, `excl`, `pending`) in default, env-var, setter and
-  forced-POSIX mode. On the farm, `TestTclTestOFD` (the subset) and `TestConcurrentProcessesOFD`
-  (mptest) run with the switch on, linux only, `t.Setenv` — the second mode costs ~1.3% of the Tcl
-  run plus one more mptest, which is why the full permutation is *not* run twice there
-  (`make tcltest_ofd` does that by hand). Only the subset can tell the modes apart: everything
-  else opens one connection, takes SHARED and never sees a difference.
+  `stale2`, `rorw`, `interleave`, `rogue`, `excl`, `pending`, plus `late`/`late0` for the freeze)
+  in default, env-var, setter and forced-POSIX mode. On the farm, `TestTclTestOFD` (the subset)
+  and `TestConcurrentProcessesOFD` (mptest) run with the switch on, linux only, `t.Setenv` — the
+  second mode costs a few minutes plus one more mptest, which is why the full permutation is
+  *not* run twice there (`make tcltest_ofd` does that by hand). Only the subset can tell the modes
+  apart: everything else opens one connection, takes SHARED and never sees a difference.
+  `TestOFDLocking` (`ofd_linux_test.go`) is the positive control for those two: it re-executes the
+  test binary per value of the variable and checks `/proc/locks` for `OFDLCK` vs `POSIX` and for
+  survival of a stray `close()`; without it a misspelled or unread variable would leave the OFD
+  tests green in POSIX mode.
 
 ## Race/threading fixes baked into generation
 

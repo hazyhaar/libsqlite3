@@ -56,12 +56,25 @@ var (
 	}
 	knownCFailures = map[string]struct{}{}
 
+	goos   = runtime.GOOS
+	goarch = runtime.GOARCH
+	target = fmt.Sprintf("%s/%s", goos, goarch)
+)
+
+// ofdEnv is the environment variable that switches the opt-in OFD locking on
+// (linux), read by the library itself in sqlite3_os_init(). TestOFDLocking is
+// the positive control for the spelling and the parsing.
+const ofdEnv = "MODERNC_SQLITE_OFD_LOCK"
+
+var (
 	// lockTests is the subset of the Tcl suite where a change to the unix
 	// VFS's locking is observable: several connections and processes on one
 	// file, read-only descriptors, unix-excl, WAL and the journal modes, busy
 	// handling. It is the acceptance gate for VFS locking changes (the MR !3
 	// rounds, cznic/sqlite#255) and what TestTclTestOFD runs with the opt-in
-	// OFD locks on. ~30 s on a desktop, ~1.3% of the full permutation.
+	// OFD locks on. ~3 min per run on any machine: walthread.test runs its
+	// cases for a fixed 20 s each (~2.3 min), the other 44 files take ~30 s
+	// on a desktop.
 	lockTests = []string{
 		"unixexcl.test",
 		"lock.test", "lock2.test", "lock3.test", "lock4.test", "lock5.test", "lock6.test", "lock7.test",
@@ -74,11 +87,10 @@ var (
 		"readonly.test",
 		"journal1.test", "journal2.test", "journal3.test",
 		"pager1.test", "pager2.test", "pager3.test", "pager4.test",
+		"sharedlock.test",
+		"walthread.test", "walvfs.test",
+		"busy2.test",
 	}
-
-	goos   = runtime.GOOS
-	goarch = runtime.GOARCH
-	target = fmt.Sprintf("%s/%s", goos, goarch)
 )
 
 func init() {
@@ -141,7 +153,7 @@ func TestConcurrentProcessesOFD(t *testing.T) {
 		t.Skipf("OFD locks are linux only, MODERNC_SQLITE_OFD_LOCK is a no-op on %s", target)
 	}
 
-	t.Setenv("MODERNC_SQLITE_OFD_LOCK", "1")
+	t.Setenv(ofdEnv, "1")
 	testConcurrentProcesses(t)
 }
 
@@ -194,7 +206,7 @@ func testConcurrentProcesses(t *testing.T) {
 
 	// mptest links the library, so the opt-in OFD locking (linux) is picked up
 	// from the environment; say which mode this run is in.
-	t.Logf("MODERNC_SQLITE_OFD_LOCK=%q", os.Getenv("MODERNC_SQLITE_OFD_LOCK"))
+	t.Logf("%s=%q", ofdEnv, os.Getenv(ofdEnv))
 
 	bin := "./mptest"
 	if runtime.GOOS == "windows" {
@@ -301,15 +313,16 @@ func TestTclTest(t *testing.T) {
 // TestTclTestOFD runs the lock/WAL subset of the Tcl suite (lockTests, ie.
 // -suite=locks) with the opt-in OFD locking switched on
 // (MODERNC_SQLITE_OFD_LOCK=1, linux only). Only that subset can tell the two
-// locking modes apart, so the second mode costs every linux builder ~1.3% of
-// the full permutation rather than a second full run; `make tcltest_ofd` is
-// the full suite in OFD mode, by hand.
+// locking modes apart, so the second mode costs every linux builder a few
+// minutes rather than a second full run; `make tcltest_ofd` is
+// the full suite in OFD mode, by hand. TestOFDLocking is the positive control
+// that the variable set here reaches the library and selects OFD locks.
 func TestTclTestOFD(t *testing.T) {
 	if goos != "linux" {
 		t.Skipf("OFD locks are linux only, MODERNC_SQLITE_OFD_LOCK is a no-op on %s", target)
 	}
 
-	t.Setenv("MODERNC_SQLITE_OFD_LOCK", "1")
+	t.Setenv(ofdEnv, "1")
 	testTcl(t, "locks")
 }
 
@@ -447,7 +460,7 @@ func testTcl(t *testing.T, suite string) {
 
 	// testfixture reads the opt-in OFD locking switch (linux) from its own
 	// environment; say which mode this run is in. See `make locktest`.
-	t.Logf("MODERNC_SQLITE_OFD_LOCK=%q", os.Getenv("MODERNC_SQLITE_OFD_LOCK"))
+	t.Logf("%s=%q", ofdEnv, os.Getenv(ofdEnv))
 
 	var args []string
 	switch suite {
