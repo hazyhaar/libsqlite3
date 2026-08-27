@@ -155,6 +155,10 @@ func TestConcurrentProcesses(t *testing.T) {
 		}
 	}
 
+	// mptest links the library, so the opt-in OFD locking (linux) is picked up
+	// from the environment; say which mode this run is in.
+	t.Logf("MODERNC_SQLITE_OFD_LOCK=%q", os.Getenv("MODERNC_SQLITE_OFD_LOCK"))
+
 	bin := "./mptest"
 	if runtime.GOOS == "windows" {
 		bin += "mptest.exe"
@@ -382,6 +386,10 @@ func TestTclTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// testfixture reads the opt-in OFD locking switch (linux) from its own
+	// environment; say which mode this run is in. See `make locktest`.
+	t.Logf("MODERNC_SQLITE_OFD_LOCK=%q", os.Getenv("MODERNC_SQLITE_OFD_LOCK"))
 
 	var args []string
 	switch s := *oSuite; s {

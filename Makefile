@@ -2,7 +2,7 @@
 # Use of the source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-.PHONY:	all clean dev download edit editor extraquick generate mptest test work xtest speedtest1 tcltest
+.PHONY:	all clean dev download edit editor extraquick generate locktest mptest mptest_ofd test work xtest speedtest1 tcltest tcltest_ofd
 
 SHELL=/bin/bash -o pipefail
 
@@ -64,14 +64,35 @@ dev: download
 extraquick:
 	go test -v -timeout 24h -run Tcl -verbose=1 -suite=extraquick
 
+# The lock/WAL subset of the Tcl suite - the acceptance gate for VFS locking
+# changes - in both locking modes: upstream's POSIX record locks (the default)
+# and, on linux, the opt-in OFD locks (MODERNC_SQLITE_OFD_LOCK, see CHANGELOG.md
+# 2026-08-27). About 30 s per mode on a desktop.
+LOCKTESTS = unixexcl.test lock.test lock2.test lock3.test lock4.test lock5.test lock6.test \
+	lock7.test shared.test shared2.test shared3.test shared4.test shared6.test shared7.test \
+	shared8.test shared9.test sharedA.test sharedB.test wal.test wal2.test wal3.test wal4.test \
+	wal5.test wal6.test wal7.test wal8.test wal9.test walro.test walro2.test walshared.test \
+	exclusive.test exclusive2.test busy.test readonly.test journal1.test journal2.test \
+	journal3.test pager1.test pager2.test pager3.test pager4.test
+
+locktest:
+	go test -v -timeout 24h -run TestTclTest -suite="full $(LOCKTESTS)"
+	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestTclTest -suite="full $(LOCKTESTS)"
+
 mptest:
 	go test -v -timeout 24h -run TestConcurrentProcesses
+
+mptest_ofd:
+	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestConcurrentProcesses
 
 speedtest1:
 	go run ./speedtest1
 
 tcltest:
 	go test -v -timeout 24h -run TestTcl
+
+tcltest_ofd:
+	MODERNC_SQLITE_OFD_LOCK=1 go test -v -timeout 24h -run TestTcl
 
 test:
 	go test -v -timeout 24h

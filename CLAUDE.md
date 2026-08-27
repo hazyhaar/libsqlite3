@@ -55,8 +55,11 @@ make editor              # the fast loop: gofmt -l -s -w . + go test -c + go bui
 make all                 # editor + golint + staticcheck (no config, defaults)
 make test                # go test -v -timeout 24h — everything; takes hours
 make tcltest             # only TestTcl*
+make tcltest_ofd         # same with MODERNC_SQLITE_OFD_LOCK=1 (opt-in OFD locks, linux)
 make extraquick          # TestTcl with the "extraquick" permutation
+make locktest            # the 42 lock/WAL Tcl files in both locking modes, ~30 s each
 make mptest              # only TestConcurrentProcesses
+make mptest_ofd          # same with MODERNC_SQLITE_OFD_LOCK=1
 make speedtest1          # go run ./speedtest1
 make build_all_targets   # cross build + test-compile every target, with -tags=none and -tags=dmesg
 make work                # go.work over sibling cc/v4, ccgo/v3, ccgo/v4, libc, libtcl8.6, libz
@@ -121,9 +124,13 @@ Environment: `GO_GENERATE_DIR` (work dir; the Makefile uses `/tmp/libsqlite3`), 
 - **SQLite**: `versionTag` in `generator.go`, `ZIP`/`ZIP2`/`URL`/`URL2` in the `Makefile`, the
   `download` URLs in `builder.json`, and the version column of the platform table in
   `libsqlite3.go`'s doc comment.
-- **`internal/*.patch{,2}` are ed-style diffs with absolute line numbers**
-  (`55620c55620`), not context diffs. They break on any upstream line-number shift, so every SQLite
-  bump means regenerating them against the new sources.
+- **`internal/issue1.patch{,2}` and `internal/sqlite_issue173.patch{,2}` are ed-style diffs with
+  absolute line numbers** (`55620c55620`), not context diffs. They break on any upstream line-number
+  shift, so every SQLite bump means regenerating them against the new sources.
+  `internal/sqlite_issue255.patch{,2}` (OFD locking, below) are unified diffs made with `diff -u`
+  from a before/after tree - "before" = pristine `sqlite3.c` with `sqlite_issue173.patch` and
+  `issue1.patch` applied, resp. pristine `src/os_unix.c` with `sqlite_issue173.patch2` - and
+  apply at zero offset; regenerate them the same way rather than editing hunks by hand.
 - **libc / libz / libtcl8.6**: hard-coded in the two `go get` lines inside `generator.go` and must
   match `go.mod` (cf. the `generator.go: update libc version` commits).
 
@@ -156,9 +163,11 @@ Set by ccgo's `--prefix-*` flags plus the `sed` renames in `generator.go`:
 - **Types** `T`-prefixed (`Tsqlite3`, `Tsqlite3_stmt`), **struct fields** `F`-prefixed,
   statics/internals/enums `_`-prefixed (`_sqlite3MutexInit`).
 - Every function takes `tls *libc.TLS` first; all pointers are `uintptr`.
-- The `package main` programs (`internal/testfixture`, `mptest`, `speedtest1`) compile `sqlite3.c`
-  in themselves and therefore keep the raw `x_` prefixes and `m_`-prefixed macros — the phase-1
-  renames don't apply to them.
+- `internal/testfixture` compiles `sqlite3.c` into itself and therefore keeps the raw `x_`
+  prefixes and `m_`-prefixed macros — the phase-1 renames don't apply to it. `mptest` and
+  `speedtest1` are `package main` too but *import* `modernc.org/libsqlite3` (`m_` macros, `X`
+  library calls), so they exercise the library file, not a private copy — which is why the
+  darwin OFD panic of 2026-08-27 showed up in `TestConcurrentProcesses`.
 - Build constraints are `//go:build <goos> && <goarch>`, except `ccgo_windows.go`, which is
   `windows && (amd64 || arm64)`.
 
@@ -174,6 +183,37 @@ platform ("file is not a database" / "database disk image is malformed"). Report
 `internal/sqlite_superjournal.patch{,2}` until **3.53.4 shipped the identical one-line fix**
 upstream (check-in `bf70dadc2d455844`), which is when the patch was dropped. Upstream's
 regression test for it is `test/crash9.test`, new in 3.53.4 and part of the `full` suite.
+
+## OFD locking (opt-in) baked into generation
+
+`internal/sqlite_issue255.patch{,2}` (cznic/sqlite#255, MR !3 + fixups): on linux the `unix` VFS can
+lock database files with Open File Description locks (`F_OFD_SETLK*`) instead of POSIX record locks,
+which any `close()` of an unrelated descriptor of the file silently drops. Facts to keep straight:
+
+- **Off by default.** `unixOfdActive()` = `ofdEnabled && ofdSupported`. `ofdEnabled` is settled once,
+  by `ofdInitOnce()` from `sqlite3_os_init()` reading `MODERNC_SQLITE_OFD_LOCK` (non-empty, not
+  starting with `0`), or by `modernc_ofd_locking(int)` → `Xmodernc_ofd_locking`, which overrides the
+  environment, returns the previous value (`-1` = unavailable; a negative argument only queries) and
+  must be called before the first database file is opened. Process-wide by kernel fact: POSIX and
+  OFD locks from the same process are different owners and conflict, so a per-DSN switch would mean
+  mixed-mode inodes.
+- **Guard is `defined(F_OFD_SETLK) && defined(__linux__)`, both halves needed.** macOS has had
+  `F_OFD_*` since 10.13 and darwin transpiles against the host SDK, so `F_OFD_SETLK` alone pulled the
+  whole path into `ccgo_darwin_*.go`, where libc's `Xfcntl64` panics on cmd 90 (2026-08-27 darwin-m1
+  red). The `#else` branch is upstream's locking plus the `-1` returning setter, on every unix
+  target; windows has no `os_unix.c` and no setter. Check after a sweep: `_ofdSupported` appears in
+  the eight `ccgo_linux_*.go` only; `Xmodernc_ofd_locking` in every non-windows `ccgo_*.go`.
+- **One designated descriptor per inode** (`pInode->hLock`, first locker's; a read-write connection
+  joining at SHARED takes over from a read-only one) because `unixInodeInfo` assumes one lock owner
+  per inode and process. The `hLock` bookkeeping runs on every unix target but is consulted only
+  through `unixLockFd()`, which ignores it unless `unixOfdActive()`.
+- **EINVAL fallback is latched** (`ofdConfirmed`): only the very first OFD `fcntl()` may flip the
+  process to POSIX mode; a later EINVAL is returned as an I/O error, since a POSIX `F_UNLCK` cannot
+  release an OFD lock already held.
+- **Acceptance gate:** `make locktest` (42 lock/WAL Tcl files, both modes, ~30 s each on a desktop),
+  `make mptest_ofd`, and the scenario program from the MR !3 review (`escape`, `exclro`, `stale`,
+  `stale2`, `rorw`, `interleave`, `rogue`, `excl`, `pending`) in default, env-var, setter and
+  forced-POSIX mode. With the gate off the farm covers only the POSIX path.
 
 ## Race/threading fixes baked into generation
 

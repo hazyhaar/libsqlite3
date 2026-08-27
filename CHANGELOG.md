@@ -1,6 +1,34 @@
 # Changelog
 
- * 2026-08-26: Linux: database file locks are now Open File Description locks (F_OFD_SETLK*):
+ * 2026-08-27: Linux OFD locking is now opt-in and off by default - cznic/sqlite#255, where Gani
+   Georgiev asked for it to ship opt-in for a couple of releases before it becomes the default.
+   Nothing had been released in between, so the default behaviour of every released version and of
+   this one is the same: upstream's POSIX record locks on every unix target. Enable OFD locks per
+   process, before the first database file is opened, either with the environment variable
+   MODERNC_SQLITE_OFD_LOCK=1 - the library reads it itself, once, in sqlite3_os_init(), so
+   testfixture, mptest and anything else linking the library pick it up without any Go plumbing -
+   or with the new Xmodernc_ofd_locking(tls, 1), which overrides the environment and returns the
+   previous setting: -1 means OFD locks are not available (every unix target but linux, or a linux
+   kernel that rejected F_OFD_*), a negative argument only queries. The function exists on every
+   unix target and not on windows, so the Go side needs one unix file and one windows stub. The
+   switch is process-wide on purpose, not a per-database option: POSIX and OFD locks are different
+   owners even inside one process, so all connections to one file must use the same kind. Two
+   fixes ride along. The patch is now guarded by defined(__linux__) as well as defined(F_OFD_SETLK):
+   macOS has had F_OFD_* since 10.13 and darwin transpiles against the host SDK, so the 2026-08-26
+   change compiled the whole OFD path into darwin/{amd64,arm64} - only the fact that libc's darwin
+   Xfcntl64 panics on unknown commands instead of passing them through stopped that from being a
+   silent switch, and darwin-m1 went red on TestConcurrentProcesses ("Xfcntl64: TODO ... 4 90");
+   with the guard darwin and the BSDs get upstream's locking and export only the -1 returning
+   setter. And the EINVAL fallback is latched: it can only happen on the very first OFD fcntl();
+   once one has succeeded a later EINVAL is returned as the I/O error it is instead of switching
+   the process to POSIX mode under OFD locks that a POSIX F_UNLCK cannot release. New Makefile
+   targets: `make locktest` runs the lock/WAL subset of the Tcl suite in both modes, `make
+   tcltest_ofd` and `make mptest_ofd` the Tcl suite resp. mptest with OFD locks. linux/amd64
+   regenerated here; every internal/autogen/*.mod snapshot blanked again so the farm regenerates
+   the ten targets that had already picked up the 2026-08-26 inputs.
+
+ * 2026-08-26: Linux: database file locks are now Open File Description locks (F_OFD_SETLK*)
+   (opt-in and off by default since 2026-08-27, see above):
    Nathan Herring's MR !3 (cznic/sqlite#255) plus a fixup commit. POSIX record locks belong to the
    process, so any close() of an unrelated descriptor of the database file - e.g. an os.File the
    application opened and closed - silently dropped every lock SQLite held on it; OFD locks belong to

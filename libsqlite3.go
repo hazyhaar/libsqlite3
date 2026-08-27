@@ -46,6 +46,18 @@
 //
 // # There are no Tier 2 platforms at the moment
 //
+// # File locking on Linux
+//
+// Database files are locked with POSIX record locks, as upstream SQLite does.
+// On linux the library can use Open File Description locks (F_OFD_SETLK)
+// instead, which survive a close() of an unrelated descriptor of the same
+// file. This is opt-in and process-wide: set the environment variable
+// MODERNC_SQLITE_OFD_LOCK=1 before the process opens its first database file,
+// or call Xmodernc_ofd_locking(tls, 1) before that point. The function returns
+// the previous setting, or -1 where OFD locks are not available; a negative
+// argument only queries. It exists on every unix target and not on windows.
+// See CHANGELOG.md (2026-08-27) and https://gitlab.com/cznic/sqlite/-/issues/255.
+//
 // # Builders
 //
 // Builder results available at:

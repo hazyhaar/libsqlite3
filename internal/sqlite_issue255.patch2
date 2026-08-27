@@ -1,17 +1,36 @@
 --- src/os_unix.c
 +++ src/os_unix.c
-@@ -990,6 +990,44 @@
+@@ -990,6 +990,98 @@
  #endif /* SQLITE_LOCK_TRACE */
  
  /*
-+** Enable Open File Description (OFD) locking on Linux with automatic
-+** one-time fallback to standard POSIX locking if EINVAL is returned.
-+** See: https://gitlab.com/cznic/sqlite/-/issues/255
++** Open File Description (OFD) locks, F_OFD_SETLK & co., on Linux instead of
++** POSIX record locks. A POSIX lock belongs to the process and is dropped by
++** any close() of any descriptor of the file; an OFD lock belongs to the open
++** file description that placed it. See https://gitlab.com/cznic/sqlite/-/issues/255
++**
++** Opt-in, and process-wide by necessity: POSIX and OFD locks are different
++** owners even within one process, so all connections to a file must use the
++** same kind. Enabled by the environment variable MODERNC_SQLITE_OFD_LOCK
++** (any value but the empty string or one starting with "0"), which is read
++** once from sqlite3_os_init(), or by modernc_ofd_locking(1), which overrides
++** it. Both must happen before the first database file is opened.
++**
++** Kernels before 3.15 reject F_OFD_* with EINVAL: if the very first OFD
++** fcntl() fails that way the library falls back to POSIX locks for good.
++** Once an OFD fcntl() has succeeded the mode is fixed: a later EINVAL is
++** returned to the caller as the I/O error it is, because switching modes
++** while OFD locks are held would leave them behind - a POSIX F_UNLCK does not
++** release an OFD lock.
 +*/
-+#if defined(F_OFD_SETLK)
-+static volatile int ofdSupported = 1;
++#if defined(F_OFD_SETLK) && defined(__linux__)
++static volatile int ofdEnabled = 0;    /* Opt-in, default off */
++static volatile int ofdSupported = 1;  /* Cleared if the first OFD fcntl() is EINVAL */
++static volatile int ofdConfirmed = 0;  /* An OFD fcntl() has succeeded */
++static volatile int ofdDecided = 0;    /* ofdEnabled has been settled */
++# define unixOfdActive() (ofdEnabled && ofdSupported)
 +static int osFcntlOfd(int fd, int cmd, void *arg){
-+  if( ofdSupported ){
++  if( unixOfdActive() ){
 +    int ofdCmd = cmd;
 +    if( cmd==F_SETLK ) ofdCmd = F_OFD_SETLK;
 +    else if( cmd==F_SETLKW ) ofdCmd = F_OFD_SETLKW;
@@ -20,7 +39,11 @@
 +      struct flock *pLock = (struct flock *)arg;
 +      pLock->l_pid = 0; /* Required by Linux kernel for F_OFD_* commands */
 +      int rc = osFcntl(fd, ofdCmd, arg);
-+      if( rc!=(-1) || errno!=EINVAL ){
++      if( rc!=(-1) ){
++        ofdConfirmed = 1;
++        return rc;
++      }
++      if( errno!=EINVAL || ofdConfirmed ){
 +        return rc;
 +      }
 +      ofdSupported = 0;
@@ -29,23 +52,54 @@
 +  return osFcntl(fd, cmd, arg);
 +}
 +/*
++** Settle ofdEnabled from the environment, once. Called from sqlite3_os_init(),
++** before any file can be opened, so the mode is fixed before the first lock.
++*/
++static void ofdInitOnce(void){
++  if( !ofdDecided ){
++    const char *z = getenv("MODERNC_SQLITE_OFD_LOCK");
++    ofdEnabled = (z!=0 && z[0]!=0 && z[0]!='0');
++    ofdDecided = 1;
++  }
++}
++/*
++** Switch OFD locking on (onoff>0) or off (onoff==0), or query it (onoff<0).
++** Returns the previous setting, or -1 where OFD locks are not available: on
++** every unix target but Linux, and on Linux once the kernel has rejected
++** them. Must be called before the first database file is opened. Overrides
++** MODERNC_SQLITE_OFD_LOCK.
++*/
++int modernc_ofd_locking(int onoff){
++  int prev;
++  ofdInitOnce();
++  if( !ofdSupported ) return -1;
++  prev = ofdEnabled;
++  if( onoff>=0 ) ofdEnabled = (onoff!=0);
++  return prev;
++}
++/*
 +** The descriptor through which the kernel locks on pFile's inode are held.
 +** With OFD locks every lock of the inode must go through one open file
 +** description (pInode->hLock); with POSIX locks the fd does not matter,
 +** so use pFile->h as upstream does.
 +*/
 +# define unixLockFd(pFile) \
-+    ((ofdSupported && (pFile)->pInode->hLock) ? (pFile)->pInode->hLock : (pFile)->h)
++    ((unixOfdActive() && (pFile)->pInode->hLock) ? (pFile)->pInode->hLock : (pFile)->h)
 +#else
-+#define osFcntlOfd osFcntl
-+#define unixLockFd(pFile) ((pFile)->h)
++# define osFcntlOfd osFcntl
++# define unixLockFd(pFile) ((pFile)->h)
++# define ofdInitOnce()
++int modernc_ofd_locking(int onoff){
++  (void)onoff;
++  return -1;
++}
 +#endif
 +
 +/*
  ** Retry ftruncate() calls that fail due to EINTR
  **
  ** All calls to ftruncate() within this file should be made through
-@@ -1327,6 +1365,8 @@
+@@ -1327,6 +1419,8 @@
    int nLock;                        /* Number of outstanding file locks */
    unsigned char eFileLock;          /* One of SHARED_LOCK, RESERVED_LOCK etc. */
    unsigned char bProcessLock;       /* An exclusive process lock is held */
@@ -54,7 +108,7 @@
    UnixUnusedFd *pUnused;            /* Unused file descriptors to close */
    int nRef;                       /* Number of pointers to this structure */
    unixShmNode *pShmNode;          /* Shared memory associated with this inode */
-@@ -1699,7 +1739,7 @@
+@@ -1699,7 +1793,7 @@
      lock.l_start = RESERVED_BYTE;
      lock.l_len = 1;
      lock.l_type = F_WRLCK;
@@ -63,7 +117,7 @@
        rc = SQLITE_IOERR_CHECKRESERVEDLOCK;
        storeLastErrno(pFile, errno);
      } else if( lock.l_type!=F_UNLCK ){
-@@ -1804,6 +1844,7 @@
+@@ -1804,6 +1898,7 @@
    unixInodeInfo *pInode = pFile->pInode;
    assert( pInode!=0 );
    assert( sqlite3_mutex_held(pInode->pLockMutex) );
@@ -71,7 +125,7 @@
    if( (pFile->ctrlFlags & (UNIXFILE_EXCL|UNIXFILE_RDONLY))==UNIXFILE_EXCL ){
      if( pInode->bProcessLock==0 ){
        struct flock lock;
-@@ -1812,7 +1853,7 @@
+@@ -1812,7 +1907,7 @@
        lock.l_start = SHARED_FIRST;
        lock.l_len = SHARED_SIZE;
        lock.l_type = F_WRLCK;
@@ -80,7 +134,7 @@
        if( rc<0 ) return rc;
        pInode->bProcessLock = 1;
        pInode->nLock++;
-@@ -1824,10 +1865,10 @@
+@@ -1824,10 +1919,10 @@
      if( pFile->bBlockOnConnect && pLock->l_type==F_RDLCK
       && pLock->l_start==SHARED_FIRST && pLock->l_len==SHARED_SIZE
      ){
@@ -93,14 +147,14 @@
    }
    return rc;
  }
-@@ -1959,6 +2000,26 @@
+@@ -1959,6 +2054,26 @@
      assert( eFileLock==SHARED_LOCK );
      assert( pFile->eFileLock==0 );
      assert( pInode->nShared>0 );
 +
-+#if defined(F_OFD_SETLK)
++#if defined(F_OFD_SETLK) && defined(__linux__)
 +    /* If designated locking fd is read-only, migrate to this read-write fd */
-+    if( ofdSupported && pInode->bLockIsReadOnly
++    if( unixOfdActive() && pInode->bLockIsReadOnly
 +     && (pFile->ctrlFlags & UNIXFILE_RDONLY)==0
 +    ){
 +      lock.l_type = F_RDLCK;
@@ -120,7 +174,7 @@
      pFile->eFileLock = SHARED_LOCK;
      pInode->nShared++;
      pInode->nLock++;
-@@ -2026,6 +2087,11 @@
+@@ -2026,6 +2141,11 @@
        pFile->eFileLock = SHARED_LOCK;
        pInode->nLock++;
        pInode->nShared = 1;
@@ -132,7 +186,7 @@
      }
    }else if( eFileLock==EXCLUSIVE_LOCK && pInode->nShared>1 ){
      /* We are trying for an exclusive lock but another thread in this
-@@ -2263,7 +2329,11 @@
+@@ -2263,7 +2383,11 @@
      */
      pInode->nLock--;
      assert( pInode->nLock>=0 );
@@ -145,3 +199,13 @@
    }
  
  end_unlock:
+@@ -8530,6 +8654,9 @@
+   ** correctly.  See ticket [bb3a86e890c8e96ab] */
+   assert( ArraySize(aSyscall)==29 );
+ 
++  /* Settle POSIX vs OFD locking before any file can be opened */
++  ofdInitOnce();
++
+   /* Register all VFSes defined in the aVfs[] array */
+   for(i=0; i<(sizeof(aVfs)/sizeof(sqlite3_vfs)); i++){
+ #ifdef SQLITE_DEFAULT_UNIX_VFS
