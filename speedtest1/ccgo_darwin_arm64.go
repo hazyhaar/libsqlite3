@@ -1,4 +1,4 @@
-// Code generated for darwin/arm64 by 'generator -D_GCC_NULLPTR_T -D_Float16=short -D__bf16=short -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_arm64.go -I /tmp/libsqlite3/sqlite-src-3530400 /tmp/libsqlite3/sqlite-src-3530400/test/speedtest1.c -lsqlite3', DO NOT EDIT.
+// Code generated for darwin/arm64 by 'generator -D_GCC_NULLPTR_T -D_Float16=short -D__bf16=short -DNDEBUG -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_DBPAGE_VTAB -DSQLITE_ENABLE_RTREE -ignore-unsupported-alignment -ignore-link-errors -o speedtest1/ccgo_darwin_arm64.go -I /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530400 /var/folders/4f/mc8mts295pqf7gmnfcwh6g8w0000gn/T/libsqlite3/sqlite-src-3530400/test/speedtest1.c -lsqlite3', DO NOT EDIT.
 
 //go:build darwin && arm64
 
