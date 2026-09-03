@@ -141,6 +141,10 @@ func main() {
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "issue1.patch"))
 	// https://gitlab.com/cznic/sqlite/-/issues/255
 	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_issue255.patch"))
+	// https://gitlab.com/cznic/sqlite/-/issues/221: SEH emulation for wal.c, see
+	// seh.go. The patch enables SQLITE_USE_SEH under __CCGO__ on every target;
+	// pass -DSQLITE_OMIT_SEH below to switch it off for a target.
+	util.MustShell(true, nil, "patch", filepath.Join(libRoot, "sqlite3.c"), filepath.Join("internal", "sqlite_issue221.patch"))
 
 	// C-race, enforce atomic access. NB: the 0,/.../ address matches nothing in
 	// current SQLite, so this deliberately applies to every "int isInit"
@@ -235,7 +239,6 @@ func main() {
 				"--goos", goos,
 				"-DSQLITE_HAVE_C99_MATH_FUNCS=(1)",
 				"-DSQLITE_OS_WIN=1",
-				"-DSQLITE_OMIT_SEH",
 				"-build-lines", "//go:build windows && (amd64 || arm64)\n",
 				"-map", "gcc=x86_64-w64-mingw32-gcc",
 			)
@@ -246,7 +249,6 @@ func main() {
 				"--goos", goos,
 				"-DSQLITE_HAVE_C99_MATH_FUNCS=(1)",
 				"-DSQLITE_OS_WIN=1",
-				"-DSQLITE_OMIT_SEH",
 				"-map", "gcc=i686-w64-mingw32-gcc",
 			)
 		default:
@@ -281,6 +283,11 @@ func main() {
 	mustCopyFile(fn, filepath.Join(makeRoot, result), nil)
 	mustCopyFile(filepath.Join("include", "sqlite3.h"), filepath.Join(makeRoot, "sqlite3.h"), nil)
 	mustCopyFile(filepath.Join("include", "sqlite3ext.h"), filepath.Join(makeRoot, "sqlite3ext.h"), nil)
+	if os.Getenv("GO_GENERATE_LIBONLY") != "" {
+		// Stop after the library: no testfixture, speedtest1 or mptest. For
+		// iterating on the internal/*.patch files.
+		return
+	}
 	_, extractedArchivePath = filepath.Split(archive2Path)
 	extractedArchivePath = extractedArchivePath[:len(extractedArchivePath)-len(".zip")]
 	tempDir = os.Getenv("GO_GENERATE_DIR")

@@ -1,0 +1,453 @@
+--- sqlite3.c
++++ sqlite3.c
+@@ -15066,8 +15066,12 @@
+ /*
+ ** Enable SQLITE_USE_SEH by default on MSVC builds.  Only omit
+ ** SEH support if the -DSQLITE_OMIT_SEH option is given.
++**
++** modernc.org/sqlite: also enabled under ccgo, where the __try/__except
++** blocks of wal.c are emulated through modernc_seh_try() (see the
++** SQLITE_USE_SEH section of wal.c and https://gitlab.com/cznic/sqlite/-/issues/221).
+ */
+-#if defined(_MSC_VER) && !defined(SQLITE_OMIT_SEH)
++#if (defined(_MSC_VER) || defined(__CCGO__)) && !defined(SQLITE_OMIT_SEH)
+ # define SQLITE_USE_SEH 1
+ #else
+ # undef SQLITE_USE_SEH
+@@ -68308,6 +68312,55 @@
+ ** process to exit.
+ */
+ #ifdef SQLITE_USE_SEH
++#ifdef __CCGO__
++/*
++** modernc.org/sqlite: SEH emulation for the ccgo build.
++**
++** Go has no __try/__except, but the Go runtime turns the same hardware fault
++** (EXCEPTION_IN_PAGE_ERROR on Windows, SIGBUS/SIGSEGV elsewhere) into a
++** recoverable panic while debug.SetPanicOnFault() is in effect for the
++** goroutine. modernc_seh_try(), implemented in Go (seh.go, next to the
++** transpiled library), runs xBody(pWal, pArg) with that guard armed. If a
++** fault inside the wal-index mapping is caught it returns xOnFault(pWal), or
++** SQLITE_IOERR_IN_PAGE when xOnFault is NULL; otherwise it returns whatever
++** xBody() returned. Every SEH_TRY{...}SEH_EXCEPT(...) block of this file is
++** therefore rewritten under __CCGO__ as a call through walSehTry(), with the
++** protected statements moved into a static thunk function. SEH_TRY itself is
++** deliberately left undefined here, so that a block introduced by a future
++** SQLite upgrade fails to transpile instead of silently running unguarded.
++**
++** modernc_seh_inject() is the counterpart of sehInjectFault(): the Go side
++** decides, by a countdown set from tests, whether to raise a simulated
++** fault at this point.
++**
++** See https://gitlab.com/cznic/sqlite/-/issues/221
++*/
++int modernc_seh_try(Wal *pWal, int (*xBody)(Wal*,void*), void *pArg, int (*xOnFault)(Wal*));
++void modernc_seh_inject(Wal *pWal);
++static int walAssertLockmask(Wal *pWal);
++
++/* Simulate a memory-mapping fault in the -shm file for testing purposes */
++# define SEH_INJECT_FAULT modernc_seh_inject(pWal)
++
++/*
++** Run xBody(pWal, pArg) under the fault guard. Mirrors what SEH_TRY{...}
++** SEH_EXCEPT(X) does in the MSVC build, including the debug-only bookkeeping.
++*/
++static int walSehTry(
++  Wal *pWal,
++  int (*xBody)(Wal*,void*),
++  void *pArg,
++  int (*xOnFault)(Wal*)
++){
++  int rc;
++  assert( walAssertLockmask(pWal) && pWal->nSehTry==0 );
++  VVA_ONLY(pWal->nSehTry++);
++  rc = modernc_seh_try(pWal, xBody, pArg, xOnFault);
++  VVA_ONLY(pWal->nSehTry--);
++  assert( pWal->nSehTry==0 );
++  return rc;
++}
++#else /* __CCGO__ */
+ #include <windows.h>
+ 
+ /* Beginning of a block of code in which an exception might occur */
+@@ -68365,6 +68418,7 @@
+     RaiseException(EXCEPTION_IN_PAGE_ERROR, 0, 3, (const ULONG_PTR*)aArg);
+   }
+ }
++#endif /* __CCGO__ */
+ 
+ /*
+ ** There are two ways to use this macro. To set a pointer to be freed
+@@ -71007,6 +71061,12 @@
+ ** error occurs. It is not an error if nBackfillAttempted cannot be
+ ** decreased at all.
+ */
++#ifdef __CCGO__
++static int walSehSnapshotRecover(Wal *pWal, void *p){
++  void **aArg = (void**)p;
++  return walSnapshotRecover(pWal, aArg[0], aArg[1]);
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalSnapshotRecover(Wal *pWal){
+   int rc;
+ 
+@@ -71019,10 +71079,19 @@
+       rc = SQLITE_NOMEM;
+     }else{
+       pWal->ckptLock = 1;
++#ifdef __CCGO__
++      {
++        void *aArg[2];
++        aArg[0] = pBuf1;
++        aArg[1] = pBuf2;
++        rc = walSehTry(pWal, walSehSnapshotRecover, aArg, 0);
++      }
++#else
+       SEH_TRY {
+         rc = walSnapshotRecover(pWal, pBuf1, pBuf2);
+       }
+       SEH_EXCEPT( rc = SQLITE_IOERR_IN_PAGE; )
++#endif
+       pWal->ckptLock = 0;
+     }
+ 
+@@ -71158,12 +71227,21 @@
+ ** Pager layer will use this to know that its cache is stale and
+ ** needs to be flushed.
+ */
++#ifdef __CCGO__
++static int walSehBeginReadTransaction(Wal *pWal, void *p){
++  return walBeginReadTransaction(pWal, (int*)p);
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalBeginReadTransaction(Wal *pWal, int *pChanged){
+   int rc;
++#ifdef __CCGO__
++  rc = walSehTry(pWal, walSehBeginReadTransaction, pChanged, walHandleException);
++#else
+   SEH_TRY {
+     rc = walBeginReadTransaction(pWal, pChanged);
+   }
+   SEH_EXCEPT( rc = walHandleException(pWal); )
++#endif
+   return rc;
+ }
+ 
+@@ -71305,16 +71383,34 @@
+ ** The difference between this function and walFindFrame() is that this
+ ** function wraps walFindFrame() in an SEH_TRY{...} block.
+ */
++#ifdef __CCGO__
++typedef struct WalSehFindFrame WalSehFindFrame;
++struct WalSehFindFrame {
++  Pgno pgno;
++  u32 *piRead;
++};
++static int walSehFindFrame(Wal *pWal, void *p){
++  WalSehFindFrame *a = (WalSehFindFrame*)p;
++  return walFindFrame(pWal, a->pgno, a->piRead);
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalFindFrame(
+   Wal *pWal,                      /* WAL handle */
+   Pgno pgno,                      /* Database page number to read data for */
+   u32 *piRead                     /* OUT: Frame number (or zero) */
+ ){
+   int rc;
++#ifdef __CCGO__
++  WalSehFindFrame a;
++  a.pgno = pgno;
++  a.piRead = piRead;
++  rc = walSehTry(pWal, walSehFindFrame, &a, 0);
++#else
+   SEH_TRY {
+     rc = walFindFrame(pWal, pgno, piRead);
+   }
+   SEH_EXCEPT( rc = SQLITE_IOERR_IN_PAGE; )
++#endif
+   return rc;
+ }
+ 
+@@ -71364,6 +71460,15 @@
+ **
+ ** There can only be a single writer active at a time.
+ */
++#ifdef __CCGO__
++static int walSehBeginWriteCheck(Wal *pWal, void *pNotUsed){
++  UNUSED_PARAMETER(pNotUsed);
++  if( memcmp(&pWal->hdr, (void *)walIndexHdr(pWal), sizeof(WalIndexHdr))!=0 ){
++    return SQLITE_BUSY_SNAPSHOT;
++  }
++  return SQLITE_OK;
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalBeginWriteTransaction(Wal *pWal){
+   int rc;
+ 
+@@ -71399,12 +71504,16 @@
+   ** time the read transaction on this connection was started, then
+   ** the write is disallowed.
+   */
++#ifdef __CCGO__
++  rc = walSehTry(pWal, walSehBeginWriteCheck, 0, 0);
++#else
+   SEH_TRY {
+     if( memcmp(&pWal->hdr, (void *)walIndexHdr(pWal), sizeof(WalIndexHdr))!=0 ){
+       rc = SQLITE_BUSY_SNAPSHOT;
+     }
+   }
+   SEH_EXCEPT( rc = SQLITE_IOERR_IN_PAGE; )
++#endif
+ 
+   if( rc!=SQLITE_OK ){
+     walUnlockExclusive(pWal, WAL_WRITE_LOCK, 1);
+@@ -71439,9 +71548,43 @@
+ ** Otherwise, if the callback function does not return an error, this
+ ** function returns SQLITE_OK.
+ */
++#ifdef __CCGO__
++typedef struct WalSehUndo WalSehUndo;
++struct WalSehUndo {
++  int (*xUndo)(void *, Pgno);
++  void *pUndoCtx;
++  Pgno iMax;
++};
++static int walSehUndo(Wal *pWal, void *p){
++  WalSehUndo *a = (WalSehUndo*)p;
++  int rc = SQLITE_OK;
++  Pgno iFrame;
++  /* Restore the clients cache of the wal-index header to the state it
++  ** was in before the client began writing to the database.
++  */
++  memcpy(&pWal->hdr, (void *)walIndexHdr(pWal), sizeof(WalIndexHdr));
++  for(iFrame=pWal->hdr.mxFrame+1;
++      ALWAYS(rc==SQLITE_OK) && iFrame<=a->iMax;
++      iFrame++
++  ){
++    /* See the comment in sqlite3WalUndo() below: this call cannot fail. */
++    assert( walFramePgno(pWal, iFrame)!=1 );
++    rc = a->xUndo(a->pUndoCtx, walFramePgno(pWal, iFrame));
++  }
++  if( a->iMax!=pWal->hdr.mxFrame ) walCleanupHash(pWal);
++  return rc;
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalUndo(Wal *pWal, int (*xUndo)(void *, Pgno), void *pUndoCtx){
+   int rc = SQLITE_OK;
+   if( ALWAYS(pWal->writeLock) ){
++#ifdef __CCGO__
++    WalSehUndo a;
++    a.xUndo = xUndo;
++    a.pUndoCtx = pUndoCtx;
++    a.iMax = pWal->hdr.mxFrame;
++    rc = walSehTry(pWal, walSehUndo, &a, 0);
++#else
+     Pgno iMax = pWal->hdr.mxFrame;
+     Pgno iFrame;
+ 
+@@ -71472,6 +71615,7 @@
+       if( iMax!=pWal->hdr.mxFrame ) walCleanupHash(pWal);
+     }
+     SEH_EXCEPT( rc = SQLITE_IOERR_IN_PAGE; )
++#endif
+     pWal->iReCksum = 0;
+   }
+   return rc;
+@@ -71497,6 +71641,13 @@
+ ** of WAL_SAVEPOINT_NDATA u32 values that has been previously populated
+ ** by a call to WalSavepoint().
+ */
++#ifdef __CCGO__
++static int walSehCleanupHash(Wal *pWal, void *pNotUsed){
++  UNUSED_PARAMETER(pNotUsed);
++  walCleanupHash(pWal);
++  return SQLITE_OK;
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalSavepointUndo(Wal *pWal, u32 *aWalData){
+   int rc = SQLITE_OK;
+ 
+@@ -71516,10 +71667,14 @@
+     pWal->hdr.mxFrame = aWalData[0];
+     pWal->hdr.aFrameCksum[0] = aWalData[1];
+     pWal->hdr.aFrameCksum[1] = aWalData[2];
++#ifdef __CCGO__
++    rc = walSehTry(pWal, walSehCleanupHash, 0, 0);
++#else
+     SEH_TRY {
+       walCleanupHash(pWal);
+     }
+     SEH_EXCEPT( rc = SQLITE_IOERR_IN_PAGE; )
++#endif
+     if( pWal->iReCksum>pWal->hdr.mxFrame ){
+       pWal->iReCksum = 0;
+     }
+@@ -71940,6 +72095,20 @@
+ ** The difference between this function and walFrames() is that this
+ ** function wraps walFrames() in an SEH_TRY{...} block.
+ */
++#ifdef __CCGO__
++typedef struct WalSehFrames WalSehFrames;
++struct WalSehFrames {
++  int szPage;
++  PgHdr *pList;
++  Pgno nTruncate;
++  int isCommit;
++  int sync_flags;
++};
++static int walSehFrames(Wal *pWal, void *p){
++  WalSehFrames *a = (WalSehFrames*)p;
++  return walFrames(pWal, a->szPage, a->pList, a->nTruncate, a->isCommit, a->sync_flags);
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalFrames(
+   Wal *pWal,                      /* Wal handle to write to */
+   int szPage,                     /* Database page-size in bytes */
+@@ -71949,10 +72118,20 @@
+   int sync_flags                  /* Flags to pass to OsSync() (or 0) */
+ ){
+   int rc;
++#ifdef __CCGO__
++  WalSehFrames a;
++  a.szPage = szPage;
++  a.pList = pList;
++  a.nTruncate = nTruncate;
++  a.isCommit = isCommit;
++  a.sync_flags = sync_flags;
++  rc = walSehTry(pWal, walSehFrames, &a, walHandleException);
++#else
+   SEH_TRY {
+     rc = walFrames(pWal, szPage, pList, nTruncate, isCommit, sync_flags);
+   }
+   SEH_EXCEPT( rc = walHandleException(pWal); )
++#endif
+   return rc;
+ }
+ 
+@@ -71966,6 +72145,59 @@
+ ** If parameter xBusy is not NULL, it is a pointer to a busy-handler
+ ** callback. In this case this function runs a blocking checkpoint.
+ */
++#ifdef __CCGO__
++typedef struct WalSehCheckpoint WalSehCheckpoint;
++struct WalSehCheckpoint {
++  int rc;                         /* Result code so far */
++  int *pisChanged;                /* OUT: true if a new wal-index header is loaded */
++  int eMode2;                     /* Mode to pass to walCheckpoint() */
++  int (*xBusy2)(void*);           /* Busy handler for eMode2 */
++  void *pBusyArg;                 /* Context argument for xBusyHandler */
++  sqlite3 *db;                    /* Check this handle's interrupt flag */
++  int sync_flags;                 /* Flags to sync db file with (or 0) */
++  int nBuf;                       /* Size of temporary buffer */
++  u8 *zBuf;                       /* Temporary buffer to use */
++  int *pnLog;                     /* OUT: Number of frames in WAL */
++  int *pnCkpt;                    /* OUT: Number of backfilled frames in WAL */
++};
++/* The body of the SEH_TRY{...} block of sqlite3WalCheckpoint(), see there. */
++static int walSehCheckpoint(Wal *pWal, void *p){
++  WalSehCheckpoint *a = (WalSehCheckpoint*)p;
++  int rc = a->rc;
++  if( rc==SQLITE_OK ){
++    /* For a passive checkpoint, do not re-enable blocking locks after
++    ** reading the wal-index header. A passive checkpoint should not block
++    ** or invoke the busy handler. The only lock such a checkpoint may
++    ** attempt to obtain is a lock on a read-slot, and it should give up
++    ** immediately and do a partial checkpoint if it cannot obtain it. */
++    walDisableBlocking(pWal);
++    rc = walIndexReadHdr(pWal, a->pisChanged);
++    if( a->eMode2>SQLITE_CHECKPOINT_PASSIVE ) (void)walEnableBlocking(pWal);
++    if( *a->pisChanged && pWal->pDbFd->pMethods->iVersion>=3 ){
++      sqlite3OsUnfetch(pWal->pDbFd, 0, 0);
++    }
++  }
++
++  /* Copy data from the log to the database file. */
++  if( rc==SQLITE_OK ){
++    sqlite3FaultSim(660);
++    if( pWal->hdr.mxFrame && walPagesize(pWal)!=a->nBuf ){
++      rc = SQLITE_CORRUPT_BKPT;
++    }else if( a->eMode2!=SQLITE_CHECKPOINT_NOOP ){
++      rc = walCheckpoint(pWal, a->db, a->eMode2, a->xBusy2, a->pBusyArg,
++                         a->sync_flags, a->zBuf);
++    }
++
++    /* If no error occurred, set the output variables. */
++    if( rc==SQLITE_OK || rc==SQLITE_BUSY ){
++      if( a->pnLog ) *a->pnLog = (int)pWal->hdr.mxFrame;
++      SEH_INJECT_FAULT;
++      if( a->pnCkpt ) *a->pnCkpt = (int)(walCkptInfo(pWal)->nBackfill);
++    }
++  }
++  return rc;
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalCheckpoint(
+   Wal *pWal,                      /* Wal connection */
+   sqlite3 *db,                    /* Check this handle's interrupt flag */
+@@ -72039,6 +72271,23 @@
+ 
+ 
+   /* Read the wal-index header. */
++#ifdef __CCGO__
++  {
++    WalSehCheckpoint a;
++    a.rc = rc;
++    a.pisChanged = &isChanged;
++    a.eMode2 = eMode2;
++    a.xBusy2 = xBusy2;
++    a.pBusyArg = pBusyArg;
++    a.db = db;
++    a.sync_flags = sync_flags;
++    a.nBuf = nBuf;
++    a.zBuf = zBuf;
++    a.pnLog = pnLog;
++    a.pnCkpt = pnCkpt;
++    rc = walSehTry(pWal, walSehCheckpoint, &a, walHandleException);
++  }
++#else
+   SEH_TRY {
+     if( rc==SQLITE_OK ){
+       /* For a passive checkpoint, do not re-enable blocking locks after
+@@ -72072,6 +72321,7 @@
+     }
+   }
+   SEH_EXCEPT( rc = walHandleException(pWal); )
++#endif
+ 
+   if( isChanged ){
+     /* If a new wal-index header was loaded before the checkpoint was
+@@ -72262,8 +72512,26 @@
+ ** occurs (any value other than SQLITE_OK is returned), the CHECKPOINTER
+ ** lock is released before returning.
+ */
++#ifdef __CCGO__
++static int walSehSnapshotCheck(Wal *pWal, void *p){
++  int rc = walLockShared(pWal, WAL_CKPT_LOCK);
++  if( rc==SQLITE_OK ){
++    WalIndexHdr *pNew = (WalIndexHdr*)p;
++    if( memcmp(pNew->aSalt, pWal->hdr.aSalt, sizeof(pWal->hdr.aSalt))
++     || pNew->mxFrame<walCkptInfo(pWal)->nBackfillAttempted
++    ){
++      rc = SQLITE_ERROR_SNAPSHOT;
++      walUnlockShared(pWal, WAL_CKPT_LOCK);
++    }
++  }
++  return rc;
++}
++#endif
+ SQLITE_PRIVATE int sqlite3WalSnapshotCheck(Wal *pWal, sqlite3_snapshot *pSnapshot){
+   int rc;
++#ifdef __CCGO__
++  rc = walSehTry(pWal, walSehSnapshotCheck, pSnapshot, walHandleException);
++#else
+   SEH_TRY {
+     rc = walLockShared(pWal, WAL_CKPT_LOCK);
+     if( rc==SQLITE_OK ){
+@@ -72277,6 +72545,7 @@
+     }
+   }
+   SEH_EXCEPT( rc = walHandleException(pWal); )
++#endif
+   return rc;
+ }
+ 

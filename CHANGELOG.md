@@ -1,5 +1,20 @@
 # Changelog
 
+ * 2026-09-03: Emulate SQLite's Windows structured exception handling (SQLITE_USE_SEH) in the
+   ccgo build - cznic/sqlite#221, where a Windows Server deployment died with "unexpected fault
+   address ... signal 0xc0000006" (STATUS_IN_PAGE_ERROR) the moment the memory-mapped -shm file
+   could not be paged in. MSVC builds catch that fault in wal.c and fail the operation with
+   SQLITE_IOERR_IN_PAGE; every other build, this one included, crashed. internal/sqlite_issue221.patch
+   enables SQLITE_USE_SEH under __CCGO__ and rewrites the nine SEH_TRY{...}SEH_EXCEPT(...) blocks of
+   wal.c as calls through modernc_seh_try(), implemented in the hand-written seh.go with
+   debug.SetPanicOnFault() and recover(): the Go runtime turns the same fault - and SIGBUS/SIGSEGV on
+   unix - into a recoverable panic. A fault inside the wal-index mapping now runs SQLite's own
+   cleanup (walHandleException) and returns SQLITE_IOERR_IN_PAGE, the connection stays usable and
+   the fault is reported through sqlite3_log(); a fault anywhere else still crashes. Enabled on every
+   target; pass -DSQLITE_OMIT_SEH in generator.go to switch a target off. SehInject(n) simulates a
+   fault at the n-th SEH_INJECT_FAULT site for tests. Without a fault nothing changes but a few
+   nanoseconds per guarded WAL entry point. The testfixture build keeps -DSQLITE_OMIT_SEH.
+
  * 2026-08-27: Linux OFD locking is now opt-in and off by default - cznic/sqlite#255, where Gani
    Georgiev asked for it to ship opt-in for a couple of releases before it becomes the default.
    Nothing had been released in between, so the default behaviour of every released version and of
