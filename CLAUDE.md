@@ -273,8 +273,8 @@ keep straight:
   the stand-in for `sqlite3FaultSim(650)`) and a `runtime.Error` with `Addr()` inside
   `pWal->apWiData[0..nWiData)` (32 KiB pages, hard-coded as `walIndexPgsz` because ccgo up to
   v4.35.0 emits `WALINDEX_PGSZ = 0` for any object-like macro containing `sizeof`; fixed in cc/v4
-  after v4.29.3 (branch `eval-all-macros`, 2026-09-04) — switch to `WALINDEX_PGSZ` once every
-  target has been regenerated with a ccgo release that pins that cc).
+  v4.29.4 (2026-09-04) — switch to `WALINDEX_PGSZ` once every target has been regenerated with a
+  ccgo release that pins that cc).
   Everything else re-panics: a nil dereference has no `Addr()` and must keep crashing. A caught
   fault is reported through `sqlite3_log()` before `walHandleException()` runs.
 - **Nothing the trampoline receives may live on the Go stack.** `xBody`/`xOnFault` are `__ccgo_fp` of
