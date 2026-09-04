@@ -6,7 +6,7 @@ retract v1.10.4 // Accidentaly broken, reverting to v1.10.3 state
 
 require (
 	golang.org/x/sys v0.47.0
-	modernc.org/ccgo/v4 v4.35.0
+	modernc.org/ccgo/v4 v4.35.1
 	modernc.org/fileutil v1.4.0
 	modernc.org/libc v1.75.7
 	modernc.org/libtcl8.6 v0.20.1
@@ -20,10 +20,10 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/mod v0.38.0 // indirect
+	golang.org/x/mod v0.40.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
-	golang.org/x/tools v0.48.0 // indirect
-	modernc.org/cc/v4 v4.29.2 // indirect
+	golang.org/x/tools v0.49.0 // indirect
+	modernc.org/cc/v4 v4.29.5 // indirect
 	modernc.org/gc/v2 v2.6.5 // indirect
 	modernc.org/gc/v3 v3.1.5 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

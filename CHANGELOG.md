@@ -1,5 +1,20 @@
 # Changelog
 
+ * 2026-09-04: Generated with ccgo v4.35.1 (cc v4.29.5). cc now evaluates object-like macros as C
+   expressions in file scope when emitting Go constants for them; the preprocessor's #if evaluator
+   it used before treated every identifier, sizeof included, as zero. On linux/amd64 235 of the
+   exported constants change, all towards their C meaning: sizeof-based ones such as
+   WALINDEX_PGSZ (32768, was 0), WALINDEX_HDR_SIZE and HASHTABLE_NPAGE_ONE get their real values,
+   casts and enumeration constants such as LARGEST_INT64, SMALLEST_INT64 and SQLITE_MAX_U32 appear,
+   macros that are not constant expressions - RESERVED_BYTE, SHARED_FIRST, errno, INFINITY,
+   SQLITE_DEFAULT_LOOKASIDE - lose the wrong number they had, macros that merely name another
+   identifier (SQLITE_PRIVATE, fdatasync) become that name as a string, and pointer casts like
+   SQLITE_TRANSIENT and MAP_FAILED are all-ones instead of -1. The Windows transpiles change more,
+   the SDK headers being what they are. Nothing changes in the generated code itself. The same
+   cc release also makes the toolchain accept C23 hosts (gcc 15 defaults to it), which the
+   linux/loong64 builder is. Found by hazyhaar (libsqlite3!4). modernc.org/sqlite's vendor_libs
+   must filter the now generated SQLITE_STATIC like it filters SQLITE_TRANSIENT.
+
  * 2026-09-03: Emulate SQLite's Windows structured exception handling (SQLITE_USE_SEH) in the
    ccgo build - cznic/sqlite#221, where a Windows Server deployment died with "unexpected fault
    address ... signal 0xc0000006" (STATUS_IN_PAGE_ERROR) the moment the memory-mapped -shm file
