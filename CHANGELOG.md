@@ -13,7 +13,10 @@
    the fault is reported through sqlite3_log(); a fault anywhere else still crashes. Enabled on every
    target; pass -DSQLITE_OMIT_SEH in generator.go to switch a target off. SehInject(n) simulates a
    fault at the n-th SEH_INJECT_FAULT site for tests. Without a fault nothing changes but a few
-   nanoseconds per guarded WAL entry point. The testfixture build keeps -DSQLITE_OMIT_SEH.
+   nanoseconds per guarded WAL entry point. The testfixture build keeps -DSQLITE_OMIT_SEH. Reported
+   by hazyhaar, whose two rounds of pull requests (modernc-org/sqlite#7, libsqlite3!4) drove this,
+   and who also found that ccgo's -eval-all-macros emits WALINDEX_PGSZ as a zero constant - the
+   reason seh.go hard-codes the wal-index page size.
 
  * 2026-08-27: Linux OFD locking is now opt-in and off by default - cznic/sqlite#255, where Gani
    Georgiev asked for it to ship opt-in for a couple of releases before it becomes the default.

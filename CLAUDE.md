@@ -42,9 +42,10 @@ To change generated behavior, change an **input**, not the output:
 The hand-maintained files are: `libsqlite3.go` (package doc + the Tier 1/Tier 2 platform table),
 `libsqlite3_freebsd.go` / `libsqlite3_windows.go` (libc shims for symbols ccgo can't resolve:
 `__inline_isnan*`, `__umulh`), `etc.go` (`origin`/`todo`/`trc` debug helpers),
-`rlimit.go` / `rulimit.go` / `norlimit.go` (per-platform `setMaxOpenFiles`), `all_test.go`,
-`race_test.go`, `generator.go` (`//go:build ignore`), and
-`internal/testfixture/patch_{darwin,freebsd,netbsd,windows}.go`. The darwin one is the canonical
+`rlimit.go` / `rulimit.go` / `norlimit.go` (per-platform `setMaxOpenFiles`), `seh.go` (the SEH
+trampoline, untagged, mirrored by hand as `modernc.org/sqlite/lib/seh.go`), `all_test.go`,
+`race_test.go`, `seh_test.go` / `seh_unix_test.go` / `seh_windows_test.go`, `generator.go`
+(`//go:build ignore`), and `internal/testfixture/patch_{darwin,freebsd,netbsd,windows}.go`. The darwin one is the canonical
 override example: `generator.go` `sed`-deletes `_guess_number_of_cores` from `testfixture.go` and
 `patch_darwin.go` supplies a Go replacement using `runtime.GOMAXPROCS`.
 
@@ -78,6 +79,7 @@ go test -v -run 'TestTclTest$' -suite=locks                  # "full" + the 45-f
 go test -v -run TestTclTest -start=walrestart.test -maxerror=1
 go test -v -run TestConcurrentProcesses                      # builds ./mptest, runs crash01/multiwrite01 × journal modes
 go test -v -run TestIssueSqlite173                           # re-execs itself with -race -inner
+go test -v -run TestSEH                                      # the SEH emulation: real fault, injected faults, checkpoint cache, trampoline
 go test -run @                                               # compile-only check (matches nothing)
 ```
 
@@ -117,8 +119,9 @@ On linux/amd64 `make generate` **also** cross-generates the three Windows target
 
 Environment: `GO_GENERATE_DIR` (work dir; the Makefile uses `/tmp/libsqlite3`), `GO_GENERATE_DEV`,
 `GO_GENERATE_WIN`, `GO_GENERATE_WIN32`, `GO_GENERATE_NOWIN`, `GO_GENERATE_TEST` (builds
-`make fulltestonly` instead of `testfixture`), `GO_GENERATE_KEEP`, `TARGET_GOOS`/`TARGET_GOARCH`,
-`MODERNC_ORG_SQLITE_WITH_TCLSH`.
+`make fulltestonly` instead of `testfixture`), `GO_GENERATE_LIBONLY` (stop after the library, no
+testfixture/speedtest1/mptest - a couple of minutes per target, for iterating on `internal/*.patch`),
+`GO_GENERATE_KEEP`, `TARGET_GOOS`/`TARGET_GOARCH`, `MODERNC_ORG_SQLITE_WITH_TCLSH`.
 
 ### Version bumps — what must stay in sync
 
@@ -132,6 +135,11 @@ Environment: `GO_GENERATE_DIR` (work dir; the Makefile uses `/tmp/libsqlite3`), 
   from a before/after tree - "before" = pristine `sqlite3.c` with `sqlite_issue173.patch` and
   `issue1.patch` applied, resp. pristine `src/os_unix.c` with `sqlite_issue173.patch2` - and
   apply at zero offset; regenerate them the same way rather than editing hunks by hand.
+  `internal/sqlite_issue221.patch` (SEH emulation, below) is a unified diff too, taken against
+  `sqlite3.c` with the three patches above already applied, and was produced by a script doing
+  exact-string replacements on the nine `SEH_TRY` sites (each asserting one match) followed by
+  `diff -u`; refresh it the same way. A `SEH_TRY` site that upstream adds fails the transpile by
+  design, see below.
 - **libc / libz / libtcl8.6**: hard-coded in the two `go get` lines inside `generator.go` and must
   match `go.mod` (cf. the `generator.go: update libc version` commits).
 
@@ -168,7 +176,8 @@ Set by ccgo's `--prefix-*` flags plus the `sed` renames in `generator.go`:
   prefixes and `m_`-prefixed macros — the phase-1 renames don't apply to it. `mptest` and
   `speedtest1` are `package main` too but *import* `modernc.org/libsqlite3` (`m_` macros, `X`
   library calls), so they exercise the library file, not a private copy — which is why the
-  darwin OFD panic of 2026-08-27 showed up in `TestConcurrentProcesses`.
+  darwin OFD panic of 2026-08-27 showed up in `TestConcurrentProcesses`, and why mptest is the
+  multi-process gate for the SEH emulation that the Tcl suite never runs.
 - Build constraints are `//go:build <goos> && <goarch>`, except `ccgo_windows.go`, which is
   `windows && (amd64 || arm64)`.
 
@@ -232,6 +241,58 @@ which any `close()` of an unrelated descriptor of the file silently drops. Facts
   test binary per value of the variable and checks `/proc/locks` for `OFDLCK` vs `POSIX` and for
   survival of a stray `close()`; without it a misspelled or unread variable would leave the OFD
   tests green in POSIX mode.
+
+## SEH emulation baked into generation
+
+`internal/sqlite_issue221.patch` (cznic/sqlite#221): MSVC builds of SQLite wrap nine WAL entry
+points in `__try/__except` (`SQLITE_USE_SEH`, default since 3.44) and turn a Windows in-page error
+on the memory-mapped `-shm` file into `SQLITE_IOERR_IN_PAGE` (8714) after `walHandleException()`;
+every other build, ours included, died ("unexpected fault address … signal 0xc0000006"). Facts to
+keep straight:
+
+- **On on every target, not just Windows.** The patch makes `sqliteInt.h` test
+  `(defined(_MSC_VER) || defined(__CCGO__)) && !defined(SQLITE_OMIT_SEH)`, ccgo predefines `__CCGO__`
+  everywhere, the unix library configuration never had `-DSQLITE_OMIT_SEH` and the two Windows
+  library configurations lost it. So every `ccgo_*.go` calls `_modernc_seh_try` (once, from
+  `_walSehTry`) and `_modernc_seh_inject` (17 sites), both defined in the hand-written, **untagged**
+  `seh.go`; a windows-only definition breaks `go build` on the 17 unix targets the moment they are
+  regenerated (MR !4's blocker). The same file with `package sqlite3` must exist as
+  `modernc.org/sqlite/lib/seh.go`, because `vendor_libs` copies only `ccgo_*.go`. testfixture keeps
+  `-D_MSC_VER=1 -DSQLITE_OMIT_SEH` and speedtest1/mptest keep `-DSQLITE_OMIT_SEH`, so the Tcl suite
+  never runs the emulation; mptest imports the library and does.
+- **`SEH_TRY`/`SEH_EXCEPT` are deliberately undefined under `__CCGO__`**: a `SEH_TRY` block added by a
+  future SQLite fails to transpile instead of running unguarded. Rewrite it like the nine sites: the
+  protected statements become a static thunk `int f(Wal*, void*)` called through
+  `walSehTry(pWal, f, &args, xOnFault)`. A site that writes to a function local inside the block
+  (`isChanged` in `sqlite3WalCheckpoint`, which drives the post-block `memset(&pWal->hdr, …)` and
+  with it the page-cache reset of the next read transaction) must pass a pointer to it;
+  `TestSEHCheckpointInvalidatesCache` guards that one — MR !4 kept it thunk-local and served stale
+  pages after every checkpoint mode.
+- **The trampoline** (`_modernc_seh_try`): `debug.SetPanicOnFault(true)` + `recover()`, per goroutine,
+  restored on every exit. It handles exactly two panic values: `sehInjected` (from `SehInject(n)`,
+  the stand-in for `sqlite3FaultSim(650)`) and a `runtime.Error` with `Addr()` inside
+  `pWal->apWiData[0..nWiData)` (32 KiB pages, hard-coded as `walIndexPgsz` because ccgo's
+  `-eval-all-macros` emits `WALINDEX_PGSZ = 0` for any object-like macro containing `sizeof`).
+  Everything else re-panics: a nil dereference has no `Addr()` and must keep crashing. A caught
+  fault is reported through `sqlite3_log()` before `walHandleException()` runs.
+- **Nothing the trampoline receives may live on the Go stack.** `xBody`/`xOnFault` are `__ccgo_fp` of
+  top-level functions (static funcvals) and `pArg` is on the libc TLS stack, so the library is
+  safe; but the panic path between the fault and the callback can grow the goroutine stack
+  (`sehLog` allocates), after which a `uintptr` to a stack-resident Go closure points into the
+  old copy. `TestSEHTrampoline` therefore uses top-level functions with package-level counters —
+  with closures it failed 4 runs in 5 (the callback incremented a dead copy of `faultCalls`).
+- **Tests:** `go test -run TestSEH .` — `TestSEHTruncatedShm` (unix only: a real `SIGBUS` from a
+  `-shm` truncated under the mapping, then recovery), `TestSEHInjectedFault` (every reachable
+  injection site of SELECT/INSERT/checkpoint/savepoint; it **fails, not skips**, when no site is
+  reached, so a target whose `ccgo_*.go` predates the patch is red until regenerated),
+  `TestSEHCheckpointInvalidatesCache`, `TestSEHTrampoline` (a real fault on a `PROT_NONE` /
+  reserved page through the trampoline). Multi-process gate: `make mptest`. The sqlite side has
+  driver-level twins (`seh_test.go` there, via `lib.SehInject`/`SehPending`).
+- **Landing a change to the patch is a change to all 19 transpiles**: blank all 20
+  `internal/autogen/*.mod` in the same commit (nothing else triggers the farm; the branch does
+  not touch `go.mod`), keep regenerated linux/amd64 + windows files in the merge so that the
+  Windows builders, which never autogen, test the new code from their first run, and never push
+  while another sweep is still running.
 
 ## Race/threading fixes baked into generation
 

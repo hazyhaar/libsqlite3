@@ -266,10 +266,18 @@ externs with `--prefix-undefined=_` under `-ignore-link-errors` (verified with a
 
 ## 5. Landing it (after the libsqlite3 release and the sqlite tag)
 
-1. Here: `git merge seh-emulation` into master (or cherry-pick the source commit and drop the
-   "regenerate for testing" commit; the farm regenerates every target anyway). Nothing in it touches
-   `go.mod`. The farm's autogen then produces all 19 transpiles with the patch; the Windows builders
-   run `TestSEHTrampoline` and `TestSEHInjectedFault` (`TestSEHTruncatedShm` skips on windows).
+1. Here, in one commit on master: `git merge seh-emulation` - keep the "regenerate for testing"
+   commit in it, so that the three Windows builders, which never autogen, test the patched
+   transpiles from their first run - then fill in the CHANGELOG date and **blank all 20
+   `internal/autogen/*.mod` snapshots** (`for f in internal/autogen/*.mod; do echo > $f; done`;
+   nuc64 rewrites the three Windows ones itself). The farm regenerates a target only when its
+   snapshot differs from `go.mod` (`builder_test.go:2220`), and nothing on the branch touches
+   `go.mod`, so a plain merge would regenerate nothing: the tree would carry the patched
+   linux/amd64 and Windows transpiles next to 16 unpatched ones and `TestSEHInjectedFault` would
+   fail on those 16 ("no SEH_INJECT_FAULT site reached"). Do not push while another sweep is still
+   running, a blanked set restarts it. The farm's autogen then produces the 19 transpiles with
+   the patch; the Windows builders run `TestSEHTrampoline` and `TestSEHInjectedFault`
+   (`TestSEHTruncatedShm` skips on windows). (Corrected 2026-09-04, see §8.)
 2. `modernc.org/sqlite`: merge its `seh-emulation` branch (`lib/seh.go`, `seh_test.go`, CHANGELOG
    with the version/date filled in), then `make vendor` from the regenerated libsqlite3, `make
    editor`, `go test -run TestSEH -v`, the usual suite, tag once the dashboard is green.
@@ -306,3 +314,31 @@ externs with `--prefix-undefined=_` under `-ignore-link-errors` (verified with a
 - `libc.NewVaList(uintptr)` is supported; free the result with `libc.Xfree`.
 - The three Windows targets share one transpile for amd64/arm64 (`ccgo_windows.go`) plus
   `ccgo_windows_386.go`; there are 20 targets and 19 transpiles, not 24.
+
+## 8. Addenda from the MR !4 round (2026-09-04)
+
+hazyhaar's second round - libsqlite3!4 plus modernc-org/sqlite#7 rebased - is a from-scratch build
+of this design; `HANDOFF-seh-emulation-mr4.md` (untracked, repo root) is the review and
+`HANDOFF-seh-emulation-mr4-REPLY.md` the reply from this side. Not merged: its trampoline is
+windows-only while the patch enables SEH on every target (nine `undefined: _modernc_seh_try` on a
+regenerated linux/amd64), its `walCheckpointThunk` keeps `isChanged` local so the checkpointing
+connection serves stale pages afterwards (x=1 after another connection wrote 2, all four
+checkpoint modes), and its trampoline treats any panic without `Addr()` as an in-page fault. Two
+things changed on this branch because of it:
+
+- `TestSEHCheckpointInvalidatesCache` in `seh_test.go`: two connections, A reads, B writes, A
+  checkpoints in each of the four modes, A must then read B's value. It needs no fault, passes with
+  or without the emulation, and guards the one thunk that writes to a function local.
+- `TestSEHTrampoline` no longer uses Go closures. `__ccgo_fp` of a non-escaping closure is the
+  address of a funcval on the goroutine stack; the panic path between the fault and the callback
+  grows the stack inside `sehLog()` (`libc.NewVaList` allocates), and the `uintptr` the trampoline
+  holds then points into the old copy of the stack - the callback ran with a stale context and
+  incremented a dead `faultCalls` (4 runs in 5 on this machine with go1.27.0; the 2026-09-03 pass
+  in §4 was luck: the goroutine happened to sit on an already-grown stack). The library is not
+  affected: its `xBody`/`xOnFault` are static funcvals and `pArg` is on the libc TLS stack. The
+  test now uses top-level functions and package-level counters, exactly like the transpiled
+  thunks. Proof recorded in the mr4 reply.
+
+Also confirmed here with ccgo v4.35.0: the `-eval-all-macros` finding behind §3.3's hard-coded
+32768 (`const WALINDEX_PGSZ = 0`, use sites right); to be filed against cznic/ccgo with hazyhaar's
+reproducer and credit.
