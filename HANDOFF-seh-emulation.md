@@ -340,5 +340,11 @@ things changed on this branch because of it:
   thunks. Proof recorded in the mr4 reply.
 
 Also confirmed here with ccgo v4.35.0: the `-eval-all-macros` finding behind §3.3's hard-coded
-32768 (`const WALINDEX_PGSZ = 0`, use sites right); to be filed against cznic/ccgo with hazyhaar's
-reproducer and credit.
+32768 (`const WALINDEX_PGSZ = 0`, use sites right). Fixed the same day in cc/v4, where the
+evaluation lives (branch `eval-all-macros` in `../cc`, credit to hazyhaar in the commit): the
+`#if` evaluator that treated every identifier as 0 is replaced by a parse and type check of the
+expanded replacement list in file scope. It corrects 235 exported constants of the linux/amd64
+transpile, not just the two; the categories and the downstream consequences (sqlite's
+`vendor_libs` must filter `SQLITE_STATIC` like `SQLITE_TRANSIENT`, libc's `MAP_FAILED` changes) are
+in `HANDOFF-seh-emulation-mr4-REPLY.md` §5. It reaches this repo through a cc tag, a ccgo tag
+and a `go.mod` bump, i.e. a farm sweep of its own or one shared with the SEH landing.
