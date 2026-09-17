@@ -19086,17 +19086,17 @@ func _backupTestCmd(tls *libc.TLS, clientData TClientData, interp uintptr, objc 
 		},
 		1: {
 			FzCmd: __ccgo_ts + 14184,
-			FeCmd: 1,
+			FeCmd: int32(1),
 			FzArg: __ccgo_ts + 1173,
 		},
 		2: {
 			FzCmd: __ccgo_ts + 14191,
-			FeCmd: 2,
+			FeCmd: int32(2),
 			FzArg: __ccgo_ts + 1173,
 		},
 		3: {
 			FzCmd: __ccgo_ts + 14201,
-			FeCmd: 3,
+			FeCmd: int32(3),
 			FzArg: __ccgo_ts + 1173,
 		},
 		4: {},
@@ -19126,7 +19126,7 @@ func _backupTestCmd(tls *libc.TLS, clientData TClientData, interp uintptr, objc 
 		FnArg int32
 		FzArg uintptr
 	})(__ccgo_up(bp)))[**(**int32)(__ccgo_up(bp + 120))].FeCmd {
-	case 1:
+	case int32(1):
 		zCmdName = libtcl8_6.XTcl_GetString(tls, **(**uintptr)(__ccgo_up(objv)))
 		libtcl8_6.XTcl_GetCommandInfo(tls, interp, zCmdName, bp+128)
 		(**(**TTcl_CmdInfo)(__ccgo_up(bp + 128))).FdeleteProc = uintptr(0)
@@ -19134,15 +19134,15 @@ func _backupTestCmd(tls *libc.TLS, clientData TClientData, interp uintptr, objc 
 		libtcl8_6.XTcl_DeleteCommand(tls, interp, zCmdName)
 		rc = x_sqlite3_backup_finish(tls, p)
 		libtcl8_6.XTcl_SetResult(tls, interp, x_sqlite3ErrName(tls, rc), libc.UintptrFromInt32(0))
-	case 0:
+	case int32(0):
 		if m_TCL_OK != libtcl8_6.XTcl_GetIntFromObj(tls, interp, **(**uintptr)(__ccgo_up(objv + 2*8)), bp+192) {
 			return int32(m_TCL_ERROR)
 		}
 		rc = x_sqlite3_backup_step(tls, p, **(**int32)(__ccgo_up(bp + 192)))
 		libtcl8_6.XTcl_SetResult(tls, interp, x_sqlite3ErrName(tls, rc), libc.UintptrFromInt32(0))
-	case 2:
+	case int32(2):
 		libtcl8_6.XTcl_SetObjResult(tls, interp, libtcl8_6.XTcl_NewIntObj(tls, x_sqlite3_backup_remaining(tls, p)))
-	case 3:
+	case int32(3):
 		libtcl8_6.XTcl_SetObjResult(tls, interp, libtcl8_6.XTcl_NewIntObj(tls, x_sqlite3_backup_pagecount(tls, p)))
 		break
 	}
@@ -27039,11 +27039,11 @@ func _test_memdebug_log(tls *libc.TLS, clientData uintptr, interp uintptr, objc 
 		return int32(m_TCL_ERROR)
 	}
 	switch **(**int32)(__ccgo_up(bp)) {
-	case 0:
+	case int32(0):
 		_mallocLogEnabled = int32(1)
-	case 1:
+	case int32(1):
 		_mallocLogEnabled = 0
-	case 2:
+	case int32(2):
 		pRet = libtcl8_6.XTcl_NewObj(tls)
 		pEntry = libtcl8_6.XTcl_FirstHashEntry(tls, uintptr(unsafe.Pointer(&_aMallocLog)), bp+8)
 		for {
@@ -27077,9 +27077,9 @@ func _test_memdebug_log(tls *libc.TLS, clientData uintptr, interp uintptr, objc 
 			pEntry = libtcl8_6.XTcl_NextHashEntry(tls, bp+8)
 		}
 		libtcl8_6.XTcl_SetObjResult(tls, interp, pRet)
-	case 3:
+	case int32(3):
 		_test_memdebug_log_clear(tls)
-	case 4:
+	case int32(4):
 		break
 	}
 	return m_TCL_OK
@@ -32451,7 +32451,7 @@ func _test_vfslog(tls *libc.TLS, clientData uintptr, interp uintptr, objc int32,
 		return int32(m_TCL_ERROR)
 	}
 	switch **(**int32)(__ccgo_up(bp + 64)) {
-	case 0:
+	case int32(0):
 		if objc != int32(4) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(3), objv, __ccgo_ts+22259)
 			return int32(m_TCL_ERROR)
@@ -32463,7 +32463,7 @@ func _test_vfslog(tls *libc.TLS, clientData uintptr, interp uintptr, objc int32,
 			libtcl8_6.XTcl_AppendResult(tls, interp, libc.VaList(bp+80, __ccgo_ts+22263, libc.UintptrFromInt32(0)))
 			return int32(m_TCL_ERROR)
 		}
-	case 1:
+	case int32(1):
 		if objc != int32(3) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+22259)
 			return int32(m_TCL_ERROR)
@@ -32474,7 +32474,7 @@ func _test_vfslog(tls *libc.TLS, clientData uintptr, interp uintptr, objc int32,
 			libtcl8_6.XTcl_AppendResult(tls, interp, libc.VaList(bp+80, __ccgo_ts+22263, libc.UintptrFromInt32(0)))
 			return int32(m_TCL_ERROR)
 		}
-	case 2:
+	case int32(2):
 		if objc != int32(5) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+22270)
 			return int32(m_TCL_ERROR)
@@ -32490,7 +32490,7 @@ func _test_vfslog(tls *libc.TLS, clientData uintptr, interp uintptr, objc int32,
 			libtcl8_6.XTcl_AppendResult(tls, interp, libc.VaList(bp+80, __ccgo_ts+22263, libc.UintptrFromInt32(0)))
 			return int32(m_TCL_ERROR)
 		}
-	case 3:
+	case int32(3):
 		if objc != int32(3) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+1886)
 			return int32(m_TCL_ERROR)
@@ -39699,35 +39699,35 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 		},
 		1: {
 			FzName: __ccgo_ts + 25200,
-			FeCmd:  1,
+			FeCmd:  int32(1),
 		},
 		2: {
 			FzName: __ccgo_ts + 25207,
-			FeCmd:  2,
+			FeCmd:  int32(2),
 		},
 		3: {
 			FzName: __ccgo_ts + 25214,
-			FeCmd:  3,
+			FeCmd:  int32(3),
 		},
 		4: {
 			FzName: __ccgo_ts + 25220,
-			FeCmd:  7,
+			FeCmd:  int32(7),
 		},
 		5: {
 			FzName: __ccgo_ts + 25228,
-			FeCmd:  8,
+			FeCmd:  int32(8),
 		},
 		6: {
 			FzName: __ccgo_ts + 25240,
-			FeCmd:  4,
+			FeCmd:  int32(4),
 		},
 		7: {
 			FzName: __ccgo_ts + 25247,
-			FeCmd:  5,
+			FeCmd:  int32(5),
 		},
 		8: {
 			FzName: __ccgo_ts + 25255,
-			FeCmd:  6,
+			FeCmd:  int32(6),
 		},
 		9: {},
 	}
@@ -39743,7 +39743,7 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 		FzName uintptr
 		FeCmd  int32
 	})(__ccgo_up(bp)))[**(**int32)(__ccgo_up(bp + 160))].FeCmd {
-	case 0:
+	case int32(0):
 		if objc != int32(3) && objc != int32(4) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+25292)
 			return int32(m_TCL_ERROR)
@@ -39819,7 +39819,7 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 		 **     Activate special processing for those methods contained in the list
 		 */
 		fallthrough
-	case 2:
+	case int32(2):
 		**(**uintptr)(__ccgo_up(bp + 168)) = uintptr(0)
 		**(**int32)(__ccgo_up(bp + 176)) = 0
 		mask = 0
@@ -39869,7 +39869,7 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 		 **  occur.
 		 */
 		fallthrough
-	case 4:
+	case int32(4):
 		if objc == int32(3) {
 			if (*TTestvfs)(unsafe.Pointer(p)).FpScript != 0 {
 				_objPtr = (*TTestvfs)(unsafe.Pointer(p)).FpScript
@@ -39903,21 +39903,21 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 		 **   Where IFAIL is an integer and PERSIST is boolean.
 		 */
 		fallthrough
-	case 8:
+	case int32(8):
 		fallthrough
-	case 3:
+	case int32(3):
 		fallthrough
-	case 7:
+	case int32(7):
 		pTest = uintptr(0)
 		switch (**(**[10]struct {
 			FzName uintptr
 			FeCmd  int32
 		})(__ccgo_up(bp)))[**(**int32)(__ccgo_up(bp + 160))].FeCmd {
-		case 3:
+		case int32(3):
 			pTest = p + 60
-		case 7:
+		case int32(7):
 			pTest = p + 72
-		case 8:
+		case int32(8):
 			pTest = p + 84
 		default:
 		}
@@ -39943,9 +39943,9 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 			}
 		}
 		libtcl8_6.XTcl_SetObjResult(tls, interp, libtcl8_6.XTcl_NewIntObj(tls, iRet))
-	case 1:
+	case int32(1):
 		libtcl8_6.XTcl_DeleteCommand(tls, interp, libtcl8_6.XTcl_GetString(tls, **(**uintptr)(__ccgo_up(objv))))
-	case 5:
+	case int32(5):
 		**(**[16]struct {
 			FzName  uintptr
 			FiValue int32
@@ -40074,7 +40074,7 @@ func _testvfs_obj_cmd(tls *libc.TLS, cd TClientData, interp uintptr, objc int32,
 			iFlag = iFlag + 1
 		}
 		libtcl8_6.XTcl_SetObjResult(tls, interp, pRet)
-	case 6:
+	case int32(6):
 		if objc > int32(3) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+25450)
 			return int32(m_TCL_ERROR)
@@ -87638,91 +87638,91 @@ func _DbObjCmd(tls *libc.TLS, _cd uintptr, interp uintptr, objc int32, objv uint
 		return int32(m_TCL_ERROR)
 	}
 	switch **(**int32)(__ccgo_up(bp + 8)) {
-	case 0:
+	case int32(0):
 		goto _1
-	case 1:
+	case int32(1):
 		goto _2
-	case 2:
+	case int32(2):
 		goto _3
-	case 3:
+	case int32(3):
 		goto _4
-	case 4:
+	case int32(4):
 		goto _5
-	case 5:
+	case int32(5):
 		goto _6
-	case 6:
+	case int32(6):
 		goto _7
-	case 7:
+	case int32(7):
 		goto _8
-	case 8:
+	case int32(8):
 		goto _9
-	case 9:
+	case int32(9):
 		goto _10
-	case 10:
+	case int32(10):
 		goto _11
-	case 11:
+	case int32(11):
 		goto _12
-	case 12:
+	case int32(12):
 		goto _13
-	case 13:
+	case int32(13):
 		goto _14
-	case 14:
+	case int32(14):
 		goto _15
-	case 15:
+	case int32(15):
 		goto _16
-	case 16:
+	case int32(16):
 		goto _17
-	case 25:
+	case int32(25):
 		goto _18
-	case 18:
+	case int32(18):
 		goto _19
-	case 17:
+	case int32(17):
 		goto _20
-	case 19:
+	case int32(19):
 		goto _21
-	case 20:
+	case int32(20):
 		goto _22
-	case 21:
+	case int32(21):
 		goto _23
-	case 22:
+	case int32(22):
 		goto _24
-	case 24:
+	case int32(24):
 		goto _25
-	case 23:
+	case int32(23):
 		goto _26
-	case 28:
+	case int32(28):
 		goto _27
-	case 27:
+	case int32(27):
 		goto _28
-	case 29:
+	case int32(29):
 		goto _29
-	case 30:
+	case int32(30):
 		goto _30
-	case 32:
+	case int32(32):
 		goto _31
-	case 33:
+	case int32(33):
 		goto _32
-	case 34:
+	case int32(34):
 		goto _33
-	case 35:
+	case int32(35):
 		goto _34
-	case 36:
+	case int32(36):
 		goto _35
-	case 37:
+	case int32(37):
 		goto _36
-	case 38:
+	case int32(38):
 		goto _37
-	case 39:
+	case int32(39):
 		goto _38
-	case 26:
+	case int32(26):
 		goto _39
-	case 31:
+	case int32(31):
 		goto _40
-	case 40:
+	case int32(40):
 		goto _41
-	case 42:
+	case int32(42):
 		goto _42
-	case 41:
+	case int32(41):
 		goto _43
 	}
 	goto _44
@@ -88464,7 +88464,7 @@ _18:
 	}
 	_dbEvalInit(tls, bp+176, pDb, **(**uintptr)(__ccgo_up(objv + 2*8)), uintptr(0), 0)
 	rc = _dbEvalStep(tls, bp+176)
-	if **(**int32)(__ccgo_up(bp + 8)) == 25 {
+	if **(**int32)(__ccgo_up(bp + 8)) == int32(25) {
 		if rc == m_TCL_OK {
 			pResult4 = _dbEvalColumnValue(tls, bp+176, 0)
 		} else {
@@ -89107,13 +89107,13 @@ _36:
 						}
 					} else {
 						switch **(**int32)(__ccgo_up(bp + 432)) {
-						case 0:
+						case int32(0):
 							wMask = wMask | int64(m_SQLITE_TRACE_STMT1)
-						case 1:
+						case int32(1):
 							wMask = wMask | int64(m_SQLITE_TRACE_PROFILE1)
-						case 2:
+						case int32(2):
 							wMask = wMask | int64(m_SQLITE_TRACE_ROW1)
-						case 3:
+						case int32(3):
 							wMask = wMask | int64(m_SQLITE_TRACE_CLOSE1)
 							break
 						}
@@ -89168,10 +89168,10 @@ _37:
 			return int32(m_TCL_ERROR)
 		}
 		switch **(**int32)(__ccgo_up(bp + 448)) {
-		case 0: /* no-op */
-		case 1:
+		case int32(0): /* no-op */
+		case int32(1):
 			zBegin = __ccgo_ts + 23374
-		case 2:
+		case int32(2):
 			zBegin = __ccgo_ts + 55133
 			break
 		}
@@ -89247,10 +89247,10 @@ _39:
 		return int32(m_TCL_ERROR)
 	}
 	switch **(**int32)(__ccgo_up(bp + 452)) {
-	case 0:
+	case int32(0):
 		nCol2 = x_sqlite3_preupdate_count(tls, (*TSqliteDb1)(unsafe.Pointer(pDb)).Fdb)
 		libtcl8_6.XTcl_SetObjResult(tls, interp, libtcl8_6.XTcl_NewIntObj(tls, nCol2))
-	case 2:
+	case int32(2):
 		if objc > int32(4) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(2), objv, __ccgo_ts+55179)
 			return int32(m_TCL_ERROR)
@@ -89261,16 +89261,16 @@ _39:
 			v47 = uintptr(0)
 		}
 		_DbHookCmd(tls, interp, pDb, v47, pDb+112)
-	case 1:
+	case int32(1):
 		if objc != int32(3) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(3), objv, __ccgo_ts+1173)
 			return int32(m_TCL_ERROR)
 		}
 		pRet1 = libtcl8_6.XTcl_NewIntObj(tls, x_sqlite3_preupdate_depth(tls, (*TSqliteDb1)(unsafe.Pointer(pDb)).Fdb))
 		libtcl8_6.XTcl_SetObjResult(tls, interp, pRet1)
-	case 3:
+	case int32(3):
 		fallthrough
-	case 4:
+	case int32(4):
 		if objc != int32(4) {
 			libtcl8_6.XTcl_WrongNumArgs(tls, interp, int32(3), objv, __ccgo_ts+55193)
 			return int32(m_TCL_ERROR)
@@ -89278,7 +89278,7 @@ _39:
 		if libtcl8_6.XTcl_GetIntFromObj(tls, interp, **(**uintptr)(__ccgo_up(objv + 3*8)), bp+456) != 0 {
 			return int32(m_TCL_ERROR)
 		}
-		if **(**int32)(__ccgo_up(bp + 452)) == 4 {
+		if **(**int32)(__ccgo_up(bp + 452)) == int32(4) {
 			rc = x_sqlite3_preupdate_old(tls, (*TSqliteDb1)(unsafe.Pointer(pDb)).Fdb, **(**int32)(__ccgo_up(bp + 456)), bp+464)
 		} else {
 			rc = x_sqlite3_preupdate_new(tls, (*TSqliteDb1)(unsafe.Pointer(pDb)).Fdb, **(**int32)(__ccgo_up(bp + 456)), bp+464)
@@ -89307,13 +89307,13 @@ _40:
 	 ** whether [$db update_hook] or [$db rollback_hook] was invoked.
 	 */
 	ppHook = uintptr(0)
-	if **(**int32)(__ccgo_up(bp + 8)) == 42 {
+	if **(**int32)(__ccgo_up(bp + 8)) == int32(42) {
 		ppHook = pDb + 128
 	}
-	if **(**int32)(__ccgo_up(bp + 8)) == 40 {
+	if **(**int32)(__ccgo_up(bp + 8)) == int32(40) {
 		ppHook = pDb + 104
 	}
-	if **(**int32)(__ccgo_up(bp + 8)) == 31 {
+	if **(**int32)(__ccgo_up(bp + 8)) == int32(31) {
 		ppHook = pDb + 120
 	}
 	if objc > int32(3) {
