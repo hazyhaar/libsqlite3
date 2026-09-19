@@ -1,5 +1,16 @@
 # Changelog
 
+ * 2026-09-19: Generated with ccgo v4.36.0 (cc v4.29.7) against libc v1.77.0, libz v0.21.0 and
+   libtcl8.6 v0.21.1; Go 1.26 is now required. The generated code is unchanged, but cc now evaluates
+   object-like macros as C expressions, which corrects the exported constants: on linux/amd64 44
+   change value (WALINDEX_PGSZ is 32768, not 0; SQLITE_TRANSIENT and MAP_FAILED are all-ones, not
+   -1), 40 appear (LARGEST_INT64 and SQLITE_STATIC among them) and nine that never had a meaningful
+   value are gone: INFINITY, MB_CUR_MAX, NAN, RESERVED_BYTE, SHARED_FIRST, SQLITE_CANTOPEN_BKPT,
+   SQLITE_CORRUPT_BKPT, SQLITE_DEFAULT_LOOKASIDE and SQLITE_MISUSE_BKPT. Found by hazyhaar in
+   libsqlite3!4, fixed in cc v4.29.4 (https://gitlab.com/cznic/cc/-/commit/cf2f1ea6).
+   modernc.org/sqlite's vendor_libs must filter the new SQLITE_STATIC as it filters SQLITE_TRANSIENT
+   before its next make vendor.
+
  * 2026-08-27: Linux OFD locking is now opt-in and off by default - cznic/sqlite#255, where Gani
    Georgiev asked for it to ship opt-in for a couple of releases before it becomes the default.
    Nothing had been released in between, so the default behaviour of every released version and of
