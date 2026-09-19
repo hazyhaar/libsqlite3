@@ -1,37 +1,22 @@
 # Changelog
 
- * 2026-09-04: Generated with ccgo v4.35.1 (cc v4.29.5). cc now evaluates object-like macros as C
-   expressions in file scope when emitting Go constants for them; the preprocessor's #if evaluator
-   it used before treated every identifier, sizeof included, as zero. On linux/amd64 235 of the
-   exported constants change, all towards their C meaning: sizeof-based ones such as
-   WALINDEX_PGSZ (32768, was 0), WALINDEX_HDR_SIZE and HASHTABLE_NPAGE_ONE get their real values,
-   casts and enumeration constants such as LARGEST_INT64, SMALLEST_INT64 and SQLITE_MAX_U32 appear,
-   macros that are not constant expressions - RESERVED_BYTE, SHARED_FIRST, errno, INFINITY,
-   SQLITE_DEFAULT_LOOKASIDE - lose the wrong number they had, macros that merely name another
-   identifier (SQLITE_PRIVATE, fdatasync) become that name as a string, and pointer casts like
-   SQLITE_TRANSIENT and MAP_FAILED are all-ones instead of -1. The Windows transpiles change more,
-   the SDK headers being what they are. Nothing changes in the generated code itself. The same
-   cc release also makes the toolchain accept C23 hosts (gcc 15 defaults to it), which the
-   linux/loong64 builder is. Found by hazyhaar (libsqlite3!4). modernc.org/sqlite's vendor_libs
-   must filter the now generated SQLITE_STATIC like it filters SQLITE_TRANSIENT.
+ * 2026-09-19: Emulate SQLite's Windows structured exception handling (SQLITE_USE_SEH) on every
+   target. A fault while reading the memory-mapped -shm file, which used to kill the process, now
+   fails the statement with SQLITE_IOERR_IN_PAGE and leaves the connection usable, as MSVC builds of
+   SQLite do. On by default and not switchable at run time; the new SehInject and SehPending inject
+   such a fault for tests. Design, review history and verification are in HANDOFF-seh-emulation.md.
+   Resolves cznic/sqlite#221 and supersedes libsqlite3!4 and modernc-org/sqlite#7, thanks hazyhaar!
 
- * 2026-09-03: Emulate SQLite's Windows structured exception handling (SQLITE_USE_SEH) in the
-   ccgo build - cznic/sqlite#221, where a Windows Server deployment died with "unexpected fault
-   address ... signal 0xc0000006" (STATUS_IN_PAGE_ERROR) the moment the memory-mapped -shm file
-   could not be paged in. MSVC builds catch that fault in wal.c and fail the operation with
-   SQLITE_IOERR_IN_PAGE; every other build, this one included, crashed. internal/sqlite_issue221.patch
-   enables SQLITE_USE_SEH under __CCGO__ and rewrites the nine SEH_TRY{...}SEH_EXCEPT(...) blocks of
-   wal.c as calls through modernc_seh_try(), implemented in the hand-written seh.go with
-   debug.SetPanicOnFault() and recover(): the Go runtime turns the same fault - and SIGBUS/SIGSEGV on
-   unix - into a recoverable panic. A fault inside the wal-index mapping now runs SQLite's own
-   cleanup (walHandleException) and returns SQLITE_IOERR_IN_PAGE, the connection stays usable and
-   the fault is reported through sqlite3_log(); a fault anywhere else still crashes. Enabled on every
-   target; pass -DSQLITE_OMIT_SEH in generator.go to switch a target off. SehInject(n) simulates a
-   fault at the n-th SEH_INJECT_FAULT site for tests. Without a fault nothing changes but a few
-   nanoseconds per guarded WAL entry point. The testfixture build keeps -DSQLITE_OMIT_SEH. Reported
-   by hazyhaar, whose two rounds of pull requests (modernc-org/sqlite#7, libsqlite3!4) drove this,
-   and who also found that ccgo's -eval-all-macros emits WALINDEX_PGSZ as a zero constant - the
-   reason seh.go hard-codes the wal-index page size.
+ * 2026-09-19: Generated with ccgo v4.36.0 (cc v4.29.7) against libc v1.77.0, libz v0.21.0 and
+   libtcl8.6 v0.21.1; Go 1.26 is now required. The generated code is unchanged, but cc now evaluates
+   object-like macros as C expressions, which corrects the exported constants: on linux/amd64 44
+   change value (WALINDEX_PGSZ is 32768, not 0; SQLITE_TRANSIENT and MAP_FAILED are all-ones, not
+   -1), 40 appear (LARGEST_INT64 and SQLITE_STATIC among them) and nine that never had a meaningful
+   value are gone: INFINITY, MB_CUR_MAX, NAN, RESERVED_BYTE, SHARED_FIRST, SQLITE_CANTOPEN_BKPT,
+   SQLITE_CORRUPT_BKPT, SQLITE_DEFAULT_LOOKASIDE and SQLITE_MISUSE_BKPT. Found by hazyhaar in
+   libsqlite3!4, fixed in cc v4.29.4 (https://gitlab.com/cznic/cc/-/commit/cf2f1ea6).
+   modernc.org/sqlite's vendor_libs must filter the new SQLITE_STATIC as it filters SQLITE_TRANSIENT
+   before its next make vendor.
 
  * 2026-08-27: Linux OFD locking is now opt-in and off by default - cznic/sqlite#255, where Gani
    Georgiev asked for it to ship opt-in for a couple of releases before it becomes the default.
