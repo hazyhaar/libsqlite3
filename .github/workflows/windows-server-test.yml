@@ -1,4 +1,4 @@
-name: Test SEH Windows Server 2019
+name: Test SEH Windows Server (2022 & 2025)
 
 'on':
   push:
@@ -8,8 +8,12 @@ name: Test SEH Windows Server 2019
   workflow_dispatch:
 
 jobs:
-  test-seh-windows-2019:
-    runs-on: windows-2019
+  test-seh-windows-server:
+    strategy:
+      matrix:
+        os: [windows-2022, windows-2025]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,11 +41,11 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Running: go test -run TestSEH -v ."
-          go test -run TestSEH -v . | Tee-Object -FilePath "test_seh_windows2019.log"
+          go test -run TestSEH -v . | Tee-Object -FilePath "test_seh_${{ matrix.os }}.log"
 
       - name: Upload Test Output Log
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-seh-windows2019-log
-          path: test_seh_windows2019.log
+          name: test-seh-${{ matrix.os }}-log
+          path: test_seh_${{ matrix.os }}.log
