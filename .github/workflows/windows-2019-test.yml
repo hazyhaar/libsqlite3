@@ -1,9 +1,10 @@
 name: Test SEH Windows Server 2019
 
-on:
+'on':
   push:
     branches:
-      - '**'
+      - main
+      - 'test/**'
   workflow_dispatch:
 
 jobs:
